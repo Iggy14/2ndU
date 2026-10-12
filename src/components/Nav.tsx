@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
 import SignOutButton from "./SignOutButton";
@@ -57,8 +58,8 @@ export default async function Nav() {
         </p>
       )}
       <nav className="relative mx-auto flex h-24 w-full max-w-7xl items-center justify-between gap-x-3 px-4 md:h-20 md:gap-x-6 sm:px-10">
-        <Link href="/" className="text-xl font-black tracking-tight text-white md:text-2xl">
-          2ndU
+        <Link href="/" aria-label="2ndU home" className="shrink-0">
+          <Image src="/logo-white.png" alt="2ndU" width={600} height={258} priority className="h-10 w-auto md:h-11" />
         </Link>
         <div className="hidden items-center gap-10 md:absolute md:left-1/2 md:flex md:-translate-x-1/2">{links(link)}</div>
         <div className="flex items-center gap-2 md:gap-3">

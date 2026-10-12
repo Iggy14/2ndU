@@ -1,4 +1,6 @@
-// Split auth layout: form on the left, dark-green panel on the right with a ghost "2ndU"
+import Image from "next/image";
+
+// Split auth layout: form on the left, dark-green panel on the right with a ghost logo
 // layered behind the cut-out image. The panel is hidden on mobile.
 export default function AuthSplit({ title, subtitle, children }: { title: string; subtitle?: React.ReactNode; children: React.ReactNode }) {
   return (
@@ -14,9 +16,9 @@ export default function AuthSplit({ title, subtitle, children }: { title: string
       </div>
 
       <div aria-hidden className="relative hidden overflow-hidden bg-[#0f3d2e] bg-[url('/auth-bg.jpg')] bg-cover bg-center md:block">
-        <span className="absolute inset-0 flex select-none items-center justify-center text-[18vw] font-black leading-none tracking-tight text-white/30">
-          2ndU
-        </span>
+        <div className="absolute inset-0 flex select-none items-center justify-center opacity-30">
+          <Image src="/logo-white.png" alt="" width={600} height={258} className="w-[80%] max-w-none" />
+        </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/parrot.png"
