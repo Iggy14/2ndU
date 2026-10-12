@@ -34,14 +34,14 @@ src/
   proxy.ts                  Refreshes the Supabase session cookie; redirects logged-out users away from
                             /sell, /inbox, /become-seller, /admin (optimistic only, not security)
   app/
-    page.tsx                Home: search + category filter + live grid
+    page.tsx                Home: hero + live grid (filtered by ?q= / ?cat=)
     login/, signup/         AuthForm (email + password)
     become-seller/          Seller verification (school email, then student ID)
     listing/[id]/           Product page (ListingDetail: live status, chat button, report)
     sell/new/, sell/[id]/edit/, sell/mine/    Post, edit, manage (mark sold / relist / delete)
     inbox/, inbox/[conversationId]/           Chat list (Buying/Selling tabs) and chat room
     admin/                  Report queue
-  components/               Nav, ChatsLink (unread badge), ListingCard, ListingGrid, ListingForm, ...
+  components/               Nav, MobileNav (hamburger drawer, shadcn Sheet), SearchSheet (nav search button → top panel with search box + category chips),  CategoryFilter (category pills above the grid), ui/ (shadcn), ChatsLink (unread badge), ListingCard, ListingGrid, ListingForm, ...
   lib/
     supabase/client.ts      Browser client
     supabase/server.ts      Server client (cookies)
@@ -53,6 +53,8 @@ supabase/migrations/        0001_init.sql, 0002_ban_cleanup_and_edit_lock.sql  (
 ```
 
 Pages are server components that fetch data and pass it to a client component, which keeps it live.
+
+**No back button.** Pages have no in-app back button; users go back with the browser/OS back gesture, which Next restores from its client router cache (no reload, scroll position kept).
 
 ## Data model (Postgres)
 
@@ -87,6 +89,15 @@ Pages are server components that fetch data and pass it to a client component, w
 ## Live updates
 
 Pages use Supabase Realtime (`postgres_changes`) for fast pushes, **plus a polling backup** (every 4–5 s and on tab focus) in the chat room, product page and home grid. The backup exists because the buyer side of a chat did not receive live pushes during testing and the cause wasn't found. Each mount uses a unique channel name. `ChatsLink` (nav unread badge) has no polling backup yet.
+
+## Visual theme
+
+Site-wide look (set by the home hero and nav; apply it to every new or restyled page):
+- Dark green `#0f3d2e` for the nav and hero, white content area, white text on green.
+- Small labels (nav links, buttons, pills, card titles): `text-[11px] font-bold uppercase tracking-widest`.
+- Headings `font-black uppercase`; prices bold dark green sans; square corners (no `rounded-*` on cards/buttons).
+- Primary button: solid white on green (or solid green on white); secondary: outlined.
+- No ghost-text bands below the hero.
 
 ## Configuration
 

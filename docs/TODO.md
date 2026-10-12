@@ -29,7 +29,6 @@ Verified so far: seller verification, chat both directions (with polling backup)
 - [ ] Seller profile page / ratings
 - [ ] Password reset flow and "change email" polish
 - [ ] Image moderation / size cap on upload (client resize exists; no server limit)
-- [ ] Pagination or infinite scroll (home page caps at 60 listings)
 
 ## Before launch
 - [ ] Deploy (Vercel) and set env vars; set Supabase Site URL and redirect URLs to the real domain

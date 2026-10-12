@@ -19,5 +19,7 @@ export default async function EditListingPage({ params }: PageProps<"/sell/[id]/
   // Only the owner edits; removed listings are locked (an admin took them down).
   if (!listing || listing.seller_id !== user.id || listing.status === "removed") notFound();
 
-  return <ListingForm userId={user.id} listing={listing as Listing} />;
+  return (
+    <ListingForm userId={user.id} listing={listing as Listing} />
+  );
 }

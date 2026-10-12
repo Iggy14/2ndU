@@ -35,11 +35,11 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
     router.refresh();
   }
 
-  const input = "w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none";
+  const input = "w-full border border-slate-300 px-4 py-3 text-sm focus:border-[#0f3d2e] focus:outline-none";
 
   return (
-    <form onSubmit={submit} className="mx-auto max-w-sm space-y-4 rounded-lg border border-slate-200 bg-white p-6">
-      <h1 className="text-xl font-semibold">{mode === "login" ? "Log in" : "Create an account"}</h1>
+    <form onSubmit={submit} className="mx-auto mt-10 max-w-sm space-y-5 border border-slate-200 bg-white p-8">
+      <h1 className="text-2xl font-black uppercase tracking-widest text-[#0f3d2e]">{mode === "login" ? "Log in" : "Create an account"}</h1>
       {mode === "signup" && (
         <p className="text-sm text-slate-600">
           Anyone can sign up to buy. To sell, you&apos;ll verify your Rangsit email and student ID afterwards.
@@ -48,15 +48,15 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <input className={input} type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
       <input className={input} type="password" required minLength={8} placeholder="Password (min 8 characters)" value={password} onChange={(e) => setPassword(e.target.value)} />
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {notice && <p className="text-sm text-emerald-700">{notice}</p>}
-      <button disabled={busy} className="w-full rounded-md bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
+      {notice && <p className="text-sm text-[#0f3d2e]">{notice}</p>}
+      <button disabled={busy} className="w-full bg-[#0f3d2e] py-3.5 text-[11px] font-bold uppercase tracking-widest text-white hover:bg-[#0f3d2e]/90 disabled:opacity-50">
         {busy ? "Please wait…" : mode === "login" ? "Log in" : "Sign up"}
       </button>
       <p className="text-center text-sm text-slate-600">
         {mode === "login" ? (
-          <>No account? <Link className="text-emerald-700 underline" href="/signup">Sign up</Link></>
+          <>No account? <Link className="font-bold text-[#0f3d2e] underline" href="/signup">Sign up</Link></>
         ) : (
-          <>Already registered? <Link className="text-emerald-700 underline" href="/login">Log in</Link></>
+          <>Already registered? <Link className="font-bold text-[#0f3d2e] underline" href="/login">Log in</Link></>
         )}
       </p>
     </form>

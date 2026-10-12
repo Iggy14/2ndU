@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { resizeImage } from "@/lib/images";
 import { CATEGORIES, FULFILLMENT_LABEL, type Listing } from "@/lib/types";
-import { IMAGES_MAX, IMAGES_MIN, PRICE_MAX, PRICE_MIN, validateListing } from "@/lib/validation";
+import { PRICE_MAX, PRICE_MIN, validateListing } from "@/lib/validation";
+import PhotoUploader from "./PhotoUploader";
 
 const BUCKET = "listing-images";
 
@@ -25,8 +26,8 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const input = "w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none";
-  const label = "block space-y-1 text-sm font-medium";
+  const input = "w-full border border-slate-300 px-3 py-2 text-sm font-normal normal-case tracking-normal focus:border-[#0f3d2e] focus:outline-none";
+  const label = "block space-y-1 text-[11px] font-bold uppercase tracking-widest text-slate-700";
   const total = kept.length + files.length;
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -89,80 +90,63 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
   }
 
   return (
-    <form onSubmit={submit} className="mx-auto max-w-xl space-y-4 rounded-lg border border-slate-200 bg-white p-6">
-      <h1 className="text-xl font-semibold">{editing ? "Edit listing" : "Post an item"}</h1>
-
-      <label className={label}>Title
-        <input name="title" required minLength={3} maxLength={100} defaultValue={listing?.title} className={input} placeholder="e.g. Samsung fridge 7 cu.ft." />
-      </label>
-      <label className={label}>Price (THB)
-        <input name="price" type="number" required min={PRICE_MIN} max={PRICE_MAX} defaultValue={listing?.price} className={input} />
-        <span className="text-xs font-normal text-slate-500">{PRICE_MIN}–{PRICE_MAX.toLocaleString()} THB</span>
-      </label>
-      <label className={label}>Category
-        <select name="category" defaultValue={listing?.category} className={`${input} capitalize`}>
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </label>
-      <label className={label}>Description
-        <textarea name="description" rows={4} maxLength={2000} defaultValue={listing?.description} className={input} placeholder="Condition, age, brand, reason for selling…" />
-      </label>
-
-      <label className={label}>Where is the item?
-        <input name="location" required minLength={2} maxLength={200} defaultValue={listing?.location_text} className={input} placeholder="e.g. Lake Rangsit apartments, building B" />
-      </label>
-      <label className={label}>Handover
-        <select name="fulfillment" className={input} defaultValue={listing?.fulfillment ?? "pickup"}>
-          {(Object.keys(FULFILLMENT_LABEL) as Listing["fulfillment"][]).map((k) => (
-            <option key={k} value={k}>{FULFILLMENT_LABEL[k]}</option>
-          ))}
-        </select>
-      </label>
-      <label className={label}>Delivery notes (optional)
-        <input name="delivery_note" maxLength={300} defaultValue={listing?.delivery_note} className={input} placeholder="Areas you can deliver to, extra fee, available times…" />
-      </label>
-
-      <div className={label}>
-        Photos ({IMAGES_MIN}–{IMAGES_MAX})
-        {kept.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {kept.map((url) => (
-              <div key={url} className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt="" className="h-20 w-20 rounded object-cover" />
-                <button
-                  type="button"
-                  aria-label="Remove photo"
-                  onClick={() => setKept((cur) => cur.filter((u) => u !== url))}
-                  className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-red-600 text-xs leading-5 text-white"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        <input
-          type="file" accept="image/*" multiple
-          disabled={kept.length >= IMAGES_MAX}
-          onChange={(e) => setFiles(Array.from(e.target.files ?? []).slice(0, IMAGES_MAX - kept.length))}
-          className="block w-full text-sm"
-        />
-        <span className="text-xs font-normal text-slate-500">
-          {editing ? `${kept.length} kept + ${files.length} new` : `${files.length} selected`} · {total}/{IMAGES_MAX}
-        </span>
+    <form onSubmit={submit} className="mx-auto max-w-5xl space-y-6 pt-8">
+      <div>
+        <h1 className="text-2xl font-black uppercase tracking-widest text-[#0f3d2e] sm:text-3xl">{editing ? "Edit listing" : "List an item"}</h1>
+        <p className="mt-1 text-sm text-slate-500">Never share private information (phone, address) in your listing. Use chat instead.</p>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div className="flex gap-2">
-        <button disabled={busy} className="flex-1 rounded-md bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50">
-          {busy ? "Saving…" : editing ? "Save changes" : "Publish"}
-        </button>
-        {editing && (
-          <button type="button" disabled={busy} onClick={() => router.back()} className="rounded-md border border-slate-300 px-4 text-sm hover:border-emerald-600">
-            Cancel
-          </button>
-        )}
+      <div className="grid gap-10 md:grid-cols-2">
+        <div className="space-y-5">
+          <label className={label}>Title
+            <input name="title" required minLength={3} maxLength={100} defaultValue={listing?.title} className={input} placeholder="e.g. Samsung fridge 7 cu.ft." />
+          </label>
+          <label className={label}>Description
+            <textarea name="description" rows={5} maxLength={2000} defaultValue={listing?.description} className={input} placeholder="Condition, age, brand, reason for selling…" />
+          </label>
+          <label className={label}>Category
+            <select name="category" defaultValue={listing?.category} className={`${input} capitalize`}>
+              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </label>
+          <label className={label}>Where is the item?
+            <input name="location" required minLength={2} maxLength={200} defaultValue={listing?.location_text} className={input} placeholder="e.g. Lake Rangsit apartments, building B" />
+          </label>
+          <label className={label}>Handover
+            <select name="fulfillment" className={input} defaultValue={listing?.fulfillment ?? "pickup"}>
+              {(Object.keys(FULFILLMENT_LABEL) as Listing["fulfillment"][]).map((k) => (
+                <option key={k} value={k}>{FULFILLMENT_LABEL[k]}</option>
+              ))}
+            </select>
+          </label>
+          <label className={label}>Delivery notes (optional)
+            <input name="delivery_note" maxLength={300} defaultValue={listing?.delivery_note} className={input} placeholder="Areas you can deliver to, extra fee, available times…" />
+          </label>
+        </div>
+
+        <div className="space-y-8">
+          <PhotoUploader kept={kept} setKept={setKept} files={files} setFiles={setFiles} />
+
+          <div className="space-y-2">
+            <h2 className="text-sm font-black uppercase tracking-widest text-[#0f3d2e]">Add price</h2>
+            <label className={label}>Price (THB)
+              <input name="price" type="number" required min={PRICE_MIN} max={PRICE_MAX} defaultValue={listing?.price} className={input} />
+              <span className="text-xs font-normal normal-case tracking-normal text-slate-500">{PRICE_MIN}–{PRICE_MAX.toLocaleString()} THB</span>
+            </label>
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <div className="flex gap-2">
+            <button disabled={busy} className="flex-1 bg-[#0f3d2e] py-3 text-[11px] font-bold uppercase tracking-widest text-white hover:bg-[#0f3d2e]/90 disabled:opacity-50">
+              {busy ? "Saving…" : editing ? "Save changes" : "Publish"}
+            </button>
+            {editing && (
+              <button type="button" disabled={busy} onClick={() => router.back()} className="border border-[#0f3d2e] px-6 text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e] hover:bg-[#0f3d2e] hover:text-white">
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </form>
   );

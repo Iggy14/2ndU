@@ -14,11 +14,13 @@ export default function ListingGrid({
   viewerId,
   q,
   cat,
+  page,
 }: {
   initial: Listing[];
   viewerId: string | null;
   q: string;
   cat: string;
+  page: number;
 }) {
   const [listings, setListings] = useState(initial);
 
@@ -27,7 +29,7 @@ export default function ListingGrid({
 
     const sync = async () => {
       if (document.visibilityState !== "visible") return;
-      const { data } = await homeListingsQuery(supabase, { q, cat });
+      const { data } = await homeListingsQuery(supabase, { q, cat, page });
       if (!data) return;
       const next = data as Listing[];
       setListings((cur) => (JSON.stringify(cur) === JSON.stringify(next) ? cur : next));
@@ -57,7 +59,7 @@ export default function ListingGrid({
       window.removeEventListener("focus", sync);
       supabase.removeChannel(channel);
     };
-  }, [q, cat]);
+  }, [q, cat, page]);
 
   if (listings.length === 0) {
     return <p className="py-12 text-center text-slate-500">No items found.</p>;

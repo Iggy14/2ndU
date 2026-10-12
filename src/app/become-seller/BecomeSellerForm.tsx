@@ -15,8 +15,8 @@ export default function BecomeSellerForm({ email, emailVerified, pendingEmail }:
   const [sent, setSent] = useState(!!pendingEmail);
   const [busy, setBusy] = useState(false);
 
-  const input = "w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none";
-  const button = "w-full rounded-md bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50";
+  const input = "w-full border border-slate-300 px-4 py-3 text-sm focus:border-[#0f3d2e] focus:outline-none";
+  const button = "w-full bg-[#0f3d2e] py-3.5 text-[11px] font-bold uppercase tracking-widest text-white hover:bg-[#0f3d2e]/90 disabled:opacity-50";
 
   async function sendEmailLink(e: React.FormEvent) {
     e.preventDefault();
@@ -42,8 +42,8 @@ export default function BecomeSellerForm({ email, emailVerified, pendingEmail }:
   }
 
   return (
-    <div className="mx-auto max-w-md space-y-4 rounded-lg border border-slate-200 bg-white p-6">
-      <h1 className="text-xl font-semibold">Become a seller</h1>
+    <div className="mx-auto mt-10 max-w-md space-y-5 border border-slate-200 bg-white p-8">
+      <h1 className="text-2xl font-black uppercase tracking-widest text-[#0f3d2e]">Become a seller</h1>
       <p className="text-sm text-slate-600">
         Sellers must be Rangsit students. Note: we check the format of your student ID, not a university
         database, so please only use your own.
@@ -51,12 +51,12 @@ export default function BecomeSellerForm({ email, emailVerified, pendingEmail }:
 
       {!emailVerified ? (
         <form onSubmit={sendEmailLink} className="space-y-3">
-          <h2 className="text-sm font-semibold">Step 1 · Verify your school email</h2>
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-slate-900">Step 1 · Verify your school email</h2>
           <p className="text-sm text-slate-600">
             Your account email will change from <b>{email}</b> to your school email, which you&apos;ll use to log in from now on.
           </p>
           {sent ? (
-            <p className="text-sm text-emerald-700">
+            <p className="text-sm text-[#0f3d2e]">
               We sent a confirmation link{pendingEmail ? ` to ${pendingEmail}` : ""}. Click it, then come back to this page.
             </p>
           ) : (
@@ -68,8 +68,8 @@ export default function BecomeSellerForm({ email, emailVerified, pendingEmail }:
         </form>
       ) : (
         <form onSubmit={submitId} className="space-y-3">
-          <h2 className="text-sm font-semibold">Step 2 · Enter your student ID</h2>
-          <p className="text-sm text-emerald-700">✓ {email} verified</p>
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-slate-900">Step 2 · Enter your student ID</h2>
+          <p className="text-sm font-bold text-[#0f3d2e]">✓ {email} verified</p>
           <input className={input} inputMode="numeric" required maxLength={7} placeholder="Student ID (7 digits)" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
           <button disabled={busy} className={button}>{busy ? "Checking…" : "Start selling"}</button>
         </form>

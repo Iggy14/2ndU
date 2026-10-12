@@ -116,22 +116,22 @@ export default function ChatRoom({
   const closed = listing.status !== "available";
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col rounded-lg border border-slate-200 bg-white" style={{ height: "calc(100vh - 11rem)" }}>
+    <div className="mx-auto mt-8 flex max-w-2xl flex-col border border-slate-200 bg-white" style={{ height: "calc(100vh - 11rem)" }}>
       <Link href={`/listing/${listing.id}`} className="flex items-center gap-3 border-b border-slate-200 p-3 hover:bg-slate-50">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={listing.images[0]} alt="" className="h-12 w-12 rounded object-cover" />
+        <img src={listing.images[0]} alt="" className="size-14 object-cover" />
         <div className="min-w-0">
-          <p className="truncate font-medium">{listing.title}</p>
-          <p className="text-sm text-emerald-700">฿{listing.price.toLocaleString()}</p>
+          <p className="truncate text-[11px] font-bold uppercase tracking-widest text-slate-900">{listing.title}</p>
+          <p className="text-lg font-black tracking-tight text-[#0f3d2e]">฿{listing.price.toLocaleString()}</p>
         </div>
-        <span className="ml-auto text-xs text-slate-500">{isSeller ? "You are selling" : "Chatting with seller"}</span>
+        <span className="ml-auto text-[10px] font-bold uppercase tracking-widest text-slate-500">{isSeller ? "You are selling" : "Chatting with seller"}</span>
       </Link>
 
       <div className="flex-1 space-y-2 overflow-y-auto p-4">
         {messages.length === 0 && <p className="text-center text-sm text-slate-500">Say hi and agree on price and handover.</p>}
         {messages.map((m) => (
           <div key={m.id} className={`flex ${m.sender_id === userId ? "justify-end" : "justify-start"}`}>
-            <p className={`max-w-[75%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm ${m.sender_id === userId ? "bg-emerald-600 text-white" : "bg-slate-100"}`}>
+            <p className={`max-w-[75%] whitespace-pre-wrap px-3 py-2 text-sm ${m.sender_id === userId ? "bg-[#0f3d2e] text-white" : "bg-slate-100 text-slate-900"}`}>
               {m.body}
             </p>
           </div>
@@ -145,8 +145,8 @@ export default function ChatRoom({
         </p>
       ) : (
         <form onSubmit={send} className="flex gap-2 border-t border-slate-200 p-3">
-          <input value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} placeholder="Type a message…" className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none" />
-          <button className="rounded-md bg-emerald-600 px-4 text-sm font-medium text-white hover:bg-emerald-700">Send</button>
+          <input value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} placeholder="Type a message…" className="flex-1 border border-slate-300 px-3 py-2 text-sm focus:border-[#0f3d2e] focus:outline-none" />
+          <button className="bg-[#0f3d2e] px-6 text-[11px] font-bold uppercase tracking-widest text-white hover:bg-[#0f3d2e]/90">Send</button>
         </form>
       )}
       {error && <p className="px-3 pb-2 text-sm text-red-600">{error}</p>}

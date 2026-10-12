@@ -43,15 +43,15 @@ export default function AdminPanel({ initial }: { initial: ReportRow[] }) {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Open reports ({reports.length})</h1>
+    <div className="mx-auto max-w-3xl space-y-6 pt-8">
+      <h1 className="text-2xl font-black uppercase tracking-widest text-[#0f3d2e] sm:text-3xl">Open reports ({reports.length})</h1>
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {reports.length === 0 && <p className="text-slate-500">Nothing to review.</p>}
+      {reports.length === 0 && <p className="text-sm text-slate-500">Nothing to review.</p>}
       <ul className="space-y-3">
         {reports.map((r) => (
-          <li key={r.id} className="space-y-2 rounded-lg border border-slate-200 bg-white p-4">
+          <li key={r.id} className="space-y-3 border border-slate-200 bg-white p-4">
             <p className="text-sm">
-              <Link href={`/listing/${r.listings?.id}`} className="font-medium text-emerald-700 hover:underline">
+              <Link href={`/listing/${r.listings?.id}`} className="text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e] hover:underline">
                 {r.listings?.title ?? "(deleted listing)"}
               </Link>{" "}
               <span className="text-slate-500">
@@ -60,10 +60,10 @@ export default function AdminPanel({ initial }: { initial: ReportRow[] }) {
               </span>
             </p>
             <p className="text-sm text-slate-700">“{r.reason}”</p>
-            <div className="flex gap-2 text-sm">
-              <button onClick={() => resolve(r)} className="rounded border border-slate-300 px-3 py-1 hover:border-emerald-600">Dismiss</button>
-              <button onClick={() => removeListing(r)} className="rounded bg-amber-600 px-3 py-1 text-white">Remove listing</button>
-              <button onClick={() => banSeller(r)} className="rounded bg-red-600 px-3 py-1 text-white">Ban seller</button>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => resolve(r)} className="border border-[#0f3d2e] px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e] hover:bg-[#0f3d2e] hover:text-white">Dismiss</button>
+              <button onClick={() => removeListing(r)} className="bg-amber-600 px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-white hover:bg-amber-700">Remove listing</button>
+              <button onClick={() => banSeller(r)} className="bg-red-600 px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-white hover:bg-red-700">Ban seller</button>
             </div>
           </li>
         ))}
