@@ -12,8 +12,7 @@ export function homeListingsQuery(
   let query = supabase
     .from("listings")
     .select("*", { count: "exact" })
-    .neq("status", "removed")
-    .order("status", { ascending: true }) // 'available' sorts before 'sold'
+    .eq("status", "available") // sold items stay reachable by direct link (chat, favorites) only
     .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
   if (q) query = query.ilike("title", `%${q.replace(/[%_]/g, "")}%`);

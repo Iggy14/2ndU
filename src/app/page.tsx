@@ -18,6 +18,9 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   } = await supabase.auth.getUser();
 
   const { data, count } = await homeListingsQuery(supabase, { q, cat, page });
+  const { data: favs } = user
+    ? await supabase.from("favorites").select("listing_id").eq("user_id", user.id)
+    : { data: [] };
   const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
 
   return (
@@ -33,6 +36,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           page={page}
           initial={(data ?? []) as Listing[]}
           viewerId={user?.id ?? null}
+          favoriteIds={(favs ?? []).map((f) => f.listing_id)}
         />
         <Pagination q={q} cat={cat} page={page} totalPages={totalPages} />
       </div>

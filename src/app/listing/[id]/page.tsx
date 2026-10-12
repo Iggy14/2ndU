@@ -19,9 +19,14 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
     .eq("id", listing.seller_id)
     .single();
 
+  const { data: fav } = user
+    ? await supabase.from("favorites").select("listing_id").eq("user_id", user.id).eq("listing_id", id).maybeSingle()
+    : { data: null };
+
   return (
     <ListingDetail
       initial={listing as Listing}
+      favorited={!!fav}
       sellerName={seller?.display_name ?? "Seller"}
       viewerId={user?.id ?? null}
     />

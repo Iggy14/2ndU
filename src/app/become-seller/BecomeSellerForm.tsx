@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import AuthSplit from "@/components/AuthSplit";
 import { SCHOOL_EMAIL_DOMAIN, isSchoolEmail, isValidStudentId } from "@/lib/validation";
 
 type Props = { email: string; emailVerified: boolean; pendingEmail: string | null };
@@ -42,12 +43,16 @@ export default function BecomeSellerForm({ email, emailVerified, pendingEmail }:
   }
 
   return (
-    <div className="mx-auto mt-10 max-w-md space-y-5 border border-slate-200 bg-white p-8">
-      <h1 className="text-2xl font-black uppercase tracking-widest text-[#0f3d2e]">Become a seller</h1>
-      <p className="text-sm text-slate-600">
-        Sellers must be Rangsit students. Note: we check the format of your student ID, not a university
-        database, so please only use your own.
-      </p>
+    <AuthSplit
+      title="Become a seller"
+      subtitle={
+        <>
+          <p className="text-base font-bold text-[#0f3d2e]">Sellers must be Rangsit University students</p>
+          <p className="mt-1">Note: we check the format of your student ID.</p>
+        </>
+      }
+    >
+    <div className="space-y-5">
 
       {!emailVerified ? (
         <form onSubmit={sendEmailLink} className="space-y-3">
@@ -76,5 +81,6 @@ export default function BecomeSellerForm({ email, emailVerified, pendingEmail }:
       )}
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
+    </AuthSplit>
   );
 }

@@ -1,9 +1,19 @@
 import Link from "next/link";
 import { type Listing, isNegotiating } from "@/lib/types";
+import FavoriteButton from "./FavoriteButton";
 
-export default function ListingCard({ listing, viewerId }: { listing: Listing; viewerId?: string | null }) {
+export default function ListingCard({
+  listing,
+  viewerId,
+  favorited = false,
+}: {
+  listing: Listing;
+  viewerId?: string | null;
+  favorited?: boolean;
+}) {
   const sold = listing.status === "sold";
   return (
+    <div className="relative">
     <Link href={`/listing/${listing.id}`} className="group block text-center">
       <div className="relative aspect-square overflow-hidden bg-slate-100 ring-0 ring-[#0f3d2e] transition-shadow group-hover:ring-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -27,5 +37,12 @@ export default function ListingCard({ listing, viewerId }: { listing: Listing; v
       <p className="mt-1 text-xl font-black tracking-tight text-[#0f3d2e]">฿{listing.price.toLocaleString()}</p>
       <p className="truncate text-xs text-slate-500">{listing.location_text}</p>
     </Link>
+    <FavoriteButton
+      listingId={listing.id}
+      viewerId={viewerId ?? null}
+      initial={favorited}
+      className="absolute right-0 top-0"
+    />
+    </div>
   );
 }

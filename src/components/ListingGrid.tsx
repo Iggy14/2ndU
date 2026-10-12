@@ -6,18 +6,20 @@ import type { Listing } from "@/lib/types";
 import { homeListingsQuery } from "@/lib/listingsQuery";
 import ListingCard from "./ListingCard";
 
-// Renders the grid and keeps it live: sold / negotiating changes and new or removed
-// listings appear without a refresh. Realtime pushes are the fast path; a periodic
+// Renders the grid and keeps it live: negotiating changes and new, sold or removed
+// listings appear / disappear without a refresh. Realtime pushes are the fast path; a periodic
 // re-query (same filters as the server render) is the backup if the socket is down.
 export default function ListingGrid({
   initial,
   viewerId,
+  favoriteIds,
   q,
   cat,
   page,
 }: {
   initial: Listing[];
   viewerId: string | null;
+  favoriteIds: string[];
   q: string;
   cat: string;
   page: number;
@@ -47,7 +49,7 @@ export default function ListingGrid({
         const next = payload.new as Listing;
         setListings((cur) => {
           const rest = cur.filter((l) => l.id !== next.id);
-          if (next.status === "removed") return rest;
+          if (next.status !== "available") return rest;
           // Only keep rows that belong in the current view (initial set decides the filter).
           const existed = cur.some((l) => l.id === next.id);
           return existed ? cur.map((l) => (l.id === next.id ? next : l)) : rest;
@@ -67,7 +69,7 @@ export default function ListingGrid({
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {listings.map((l) => (
-        <ListingCard key={l.id} listing={l} viewerId={viewerId} />
+        <ListingCard key={l.id} listing={l} viewerId={viewerId} favorited={favoriteIds.includes(l.id)} />
       ))}
     </div>
   );

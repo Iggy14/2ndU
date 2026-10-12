@@ -22,7 +22,7 @@ export default function ChatRoom({
   const [listing, setListing] = useState(initialListing);
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const bottom = useRef<HTMLDivElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -92,7 +92,8 @@ export default function ChatRoom({
   }, [conversationId, userId, initialListing.id]);
 
   useEffect(() => {
-    bottom.current?.scrollIntoView({ behavior: "smooth" });
+    // Scroll only the message pane (scrollIntoView would also move the page).
+    scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
   async function send(e: React.FormEvent) {
@@ -116,7 +117,7 @@ export default function ChatRoom({
   const closed = listing.status !== "available";
 
   return (
-    <div className="mx-auto mt-8 flex max-w-2xl flex-col border border-slate-200 bg-white" style={{ height: "calc(100vh - 11rem)" }}>
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
       <Link href={`/listing/${listing.id}`} className="flex items-center gap-3 border-b border-slate-200 p-3 hover:bg-slate-50">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={listing.images[0]} alt="" className="size-14 object-cover" />
@@ -124,19 +125,24 @@ export default function ChatRoom({
           <p className="truncate text-[11px] font-bold uppercase tracking-widest text-slate-900">{listing.title}</p>
           <p className="text-lg font-black tracking-tight text-[#0f3d2e]">฿{listing.price.toLocaleString()}</p>
         </div>
-        <span className="ml-auto text-[10px] font-bold uppercase tracking-widest text-slate-500">{isSeller ? "You are selling" : "Chatting with seller"}</span>
+        <span className="ml-auto hidden text-[10px] font-bold uppercase tracking-widest text-slate-500 sm:block">{isSeller ? "You are selling" : "Chatting with seller"}</span>
       </Link>
 
-      <div className="flex-1 space-y-2 overflow-y-auto p-4">
+      <div ref={scroller} className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
         {messages.length === 0 && <p className="text-center text-sm text-slate-500">Say hi and agree on price and handover.</p>}
-        {messages.map((m) => (
-          <div key={m.id} className={`flex ${m.sender_id === userId ? "justify-end" : "justify-start"}`}>
-            <p className={`max-w-[75%] whitespace-pre-wrap px-3 py-2 text-sm ${m.sender_id === userId ? "bg-[#0f3d2e] text-white" : "bg-slate-100 text-slate-900"}`}>
-              {m.body}
-            </p>
-          </div>
-        ))}
-        <div ref={bottom} />
+        {messages.map((m) => {
+          const mine = m.sender_id === userId;
+          return (
+            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[75%] border px-3 py-2 ${mine ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-white"}`}>
+                <p className="whitespace-pre-wrap text-sm text-slate-900">{m.body}</p>
+                <p suppressHydrationWarning className="mt-1 text-right text-[10px] text-slate-400">
+                  {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {closed ? (

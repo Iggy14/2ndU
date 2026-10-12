@@ -39,7 +39,11 @@ src/
     become-seller/          Seller verification (school email, then student ID)
     listing/[id]/           Product page (ListingDetail: live status, chat button, report)
     sell/new/, sell/[id]/edit/, sell/mine/    Post, edit, manage (mark sold / relist / delete)
-    inbox/, inbox/[conversationId]/           Chat list (Buying/Selling tabs) and chat room
+    inbox/, inbox/[conversationId]/           Two-pane chat: layout.tsx fetches the list (ConversationList, left, dark green);
+                            the page is the chat room (right). On mobile only one pane shows at a time. The list does
+                            not refetch on navigation, so the active chat's unread badge is hidden client-side.
+    favorites/              Saved listings (logged-in)
+    seller/[id]/            Public seller profile + their listings (no student ID / email shown)
     admin/                  Report queue
   components/               Nav, MobileNav (hamburger drawer, shadcn Sheet), SearchSheet (nav search button → top panel with search box + category chips),  CategoryFilter (category pills above the grid), ui/ (shadcn), ChatsLink (unread badge), ListingCard, ListingGrid, ListingForm, ...
   lib/
@@ -49,7 +53,7 @@ src/
     listingsQuery.ts        Home query shared by server render and the grid's refresh
     types.ts                Types, categories, isNegotiating()
     images.ts               Client-side photo resize before upload
-supabase/migrations/        0001_init.sql, 0002_ban_cleanup_and_edit_lock.sql  (run in order)
+supabase/migrations/        0001_init.sql, 0002_ban_cleanup_and_edit_lock.sql, 0003_favorites.sql  (run in order)
 ```
 
 Pages are server components that fetch data and pass it to a client component, which keeps it live.
@@ -62,11 +66,12 @@ Pages are server components that fetch data and pass it to a client component, w
 - `listings`: `seller_id`, title, description, price (1–100,000), `images[]` (1–8), `location_text`, `fulfillment` (delivery / pickup / both), `status` (available / sold / removed), `sold_at`, `last_negotiated_at`, `last_negotiated_by`.
 - `conversations`: one per (listing, buyer). `messages`: belong to a conversation, with `read_at`.
 - `reports`: listing reports, reviewed in `/admin`.
+- `favorites`: (user_id, listing_id) saved listings; RLS lets users see and change only their own. `FavoriteButton` toggles optimistically and is used on `ListingCard` and the product page.
 - Storage bucket `listing-images` (public read; sellers write only inside their own `<userId>/` folder).
 
 ## Key flows
 
-**Seller verification.** User clicks "Become a seller", changes their account email to an `@rsu.ac.th` address (Supabase sends a confirmation link), then enters a student ID matching `^6\d{6}$`. The browser calls the `become_seller(p_student_id)` RPC, a `security definer` function that checks the confirmed email domain and ID pattern, then sets `is_seller`. The ID is only format-checked; there is no student database. Users cannot set `is_seller`, `role`, `banned`, `student_id` or `school_email` themselves (`protect_profile_columns` trigger).
+**Seller verification.** Two routes. (a) Sign up with "Buy and sell": school email + student ID on the signup form; the ID is stored in `user_metadata.student_id`, and after the confirmation link `/become-seller` calls the RPC automatically. (b) Existing buyers: User clicks "Become a seller", changes their account email to an `@rsu.ac.th` address (Supabase sends a confirmation link), then enters a student ID matching `^6\d{6}$`. The browser calls the `become_seller(p_student_id)` RPC, a `security definer` function that checks the confirmed email domain and ID pattern, then sets `is_seller`. The ID is only format-checked; there is no student database. Users cannot set `is_seller`, `role`, `banned`, `student_id` or `school_email` themselves (`protect_profile_columns` trigger).
 
 **Posting and editing.** `ListingForm` resizes photos in the browser, uploads to storage, then inserts or updates the row. RLS requires an active (unbanned) seller. Photos removed during an edit are deleted from storage; photos uploaded in a failed save are cleaned up.
 
@@ -89,6 +94,12 @@ Pages are server components that fetch data and pass it to a client component, w
 ## Live updates
 
 Pages use Supabase Realtime (`postgres_changes`) for fast pushes, **plus a polling backup** (every 4–5 s and on tab focus) in the chat room, product page and home grid. The backup exists because the buyer side of a chat did not receive live pushes during testing and the cause wasn't found. Each mount uses a unique channel name. `ChatsLink` (nav unread badge) has no polling backup yet.
+
+## Auth emails and notifications
+
+- `/auth/confirm` (route handler) is where every Supabase email link lands: signup confirmation, password reset, email change. It handles `?code=` (default templates) and `?token_hash=&type=` (custom templates, works across devices). Reset links go on to `/reset-password`; a bad link goes to `/login?error=`.
+- `/forgot-password` and `/reset-password` share `PasswordForm`. Login shows "Resend confirmation email" when the account is unconfirmed.
+- New-message email: a Supabase Database Webhook (INSERT on `messages`, POST to `/api/notify-message`, header `x-webhook-secret` = `NOTIFY_WEBHOOK_SECRET`) makes the route email the other participant through Resend. It sends one email per burst (skipped if the sender already has an earlier unread message in that chat) and never to banned users. Needs `SUPABASE_SERVICE_ROLE_KEY` (server only), `RESEND_API_KEY`, `EMAIL_FROM`, `NEXT_PUBLIC_SITE_URL`. Supabase dashboard: add `<site>/auth/confirm` to Auth → Redirect URLs.
 
 ## Visual theme
 

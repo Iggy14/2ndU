@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { FULFILLMENT_LABEL, type Listing, isNegotiating } from "@/lib/types";
+import FavoriteButton from "@/components/FavoriteButton";
 import ListingGallery from "./ListingGallery";
 
 const label = "text-[11px] font-bold uppercase tracking-widest text-slate-500";
@@ -18,7 +19,9 @@ export default function ListingDetail({
   initial,
   sellerName,
   viewerId,
+  favorited,
 }: {
+  favorited: boolean;
   initial: Listing;
   sellerName: string;
   viewerId: string | null;
@@ -120,9 +123,17 @@ export default function ListingDetail({
           </div>
         )}
 
-        <div>
-          <h1 className="text-2xl font-black uppercase tracking-widest text-slate-900 sm:text-3xl">{listing.title}</h1>
-          <p className="mt-2 text-xs text-slate-500">Sold by {sellerName}</p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-widest text-slate-900 sm:text-3xl">{listing.title}</h1>
+            <p className="mt-2 text-xs text-slate-500">
+              Sold by{" "}
+              <Link href={`/seller/${listing.seller_id}`} className="font-bold text-[#0f3d2e] underline">
+                {sellerName}
+              </Link>
+            </p>
+          </div>
+          <FavoriteButton listingId={listing.id} viewerId={viewerId} initial={favorited} className="shrink-0 border border-slate-200" />
         </div>
 
         {listing.description && (

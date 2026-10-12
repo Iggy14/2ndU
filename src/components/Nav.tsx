@@ -43,6 +43,7 @@ export default async function Nav() {
       {user && !profile?.is_seller && !profile?.banned && (
         <Link href="/become-seller" className={cls}>Become a seller</Link>
       )}
+      {user && <Link href="/favorites" className={cls}>Favourites</Link>}
       {user && <ChatsLink userId={user.id} initialUnread={unread} className={cls} />}
       {profile?.role === "admin" && <Link href="/admin" className={cls}>Admin</Link>}
     </>
