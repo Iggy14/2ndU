@@ -1,0 +1,73 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+
+export type ReportRow = {
+  id: string;
+  reason: string;
+  created_at: string;
+  listings: {
+    id: string;
+    title: string;
+    status: string;
+    seller_id: string;
+    profiles: { display_name: string; banned: boolean; student_id: string | null } | null;
+  } | null;
+};
+
+export default function AdminPanel({ initial }: { initial: ReportRow[] }) {
+  const [reports, setReports] = useState(initial);
+  const [error, setError] = useState<string | null>(null);
+
+  const supabase = createClient();
+  const drop = (id: string) => setReports((cur) => cur.filter((r) => r.id !== id));
+  const check = (error: { message: string } | null) => {
+    if (error) setError(error.message);
+    return !error;
+  };
+
+  async function resolve(r: ReportRow) {
+    if (check((await supabase.from("reports").update({ resolved: true }).eq("id", r.id)).error)) drop(r.id);
+  }
+  async function removeListing(r: ReportRow) {
+    if (!r.listings) return;
+    const res = await supabase.from("listings").update({ status: "removed" }).eq("id", r.listings.id);
+    if (check(res.error)) await resolve(r);
+  }
+  async function banSeller(r: ReportRow) {
+    if (!r.listings || !confirm("Ban this seller? They won't be able to post or chat.")) return;
+    const res = await supabase.from("profiles").update({ banned: true }).eq("id", r.listings.seller_id);
+    if (check(res.error)) await removeListing(r);
+  }
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-xl font-semibold">Open reports ({reports.length})</h1>
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      {reports.length === 0 && <p className="text-slate-500">Nothing to review.</p>}
+      <ul className="space-y-3">
+        {reports.map((r) => (
+          <li key={r.id} className="space-y-2 rounded-lg border border-slate-200 bg-white p-4">
+            <p className="text-sm">
+              <Link href={`/listing/${r.listings?.id}`} className="font-medium text-emerald-700 hover:underline">
+                {r.listings?.title ?? "(deleted listing)"}
+              </Link>{" "}
+              <span className="text-slate-500">
+                · seller {r.listings?.profiles?.display_name} ({r.listings?.profiles?.student_id ?? "no ID"})
+                {r.listings?.profiles?.banned ? " · BANNED" : ""} · {r.listings?.status}
+              </span>
+            </p>
+            <p className="text-sm text-slate-700">“{r.reason}”</p>
+            <div className="flex gap-2 text-sm">
+              <button onClick={() => resolve(r)} className="rounded border border-slate-300 px-3 py-1 hover:border-emerald-600">Dismiss</button>
+              <button onClick={() => removeListing(r)} className="rounded bg-amber-600 px-3 py-1 text-white">Remove listing</button>
+              <button onClick={() => banSeller(r)} className="rounded bg-red-600 px-3 py-1 text-white">Ban seller</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
