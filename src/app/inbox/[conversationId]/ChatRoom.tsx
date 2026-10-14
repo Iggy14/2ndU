@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Listing, Message } from "@/lib/types";
+import Price from "@/components/Price";
 import { notifyUnreadChanged } from "@/lib/unreadEvents";
 
 export default function ChatRoom({
@@ -129,7 +130,7 @@ export default function ChatRoom({
           <Image src={listing.images[0]} alt="" width={112} height={112} className="size-14 shrink-0 object-cover" />
           <div className="min-w-0">
             <p className="truncate text-[11px] font-bold uppercase tracking-widest text-slate-900">{listing.title}</p>
-            <p className="text-lg font-black tracking-tight text-[#0f3d2e]">฿{listing.price.toLocaleString()}</p>
+            <Price price={listing.price} originalPrice={listing.original_price} className="text-lg" />
           </div>
           <span className="ml-auto hidden text-[10px] font-bold uppercase tracking-widest text-slate-500 sm:block">{isSeller ? "You are selling" : "Chatting with seller"}</span>
         </Link>

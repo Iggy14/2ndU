@@ -40,7 +40,9 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
     setError(null);
     const f = new FormData(e.currentTarget);
     const price = Number(f.get("price"));
-    const problem = validateListing({ price, imageCount: total });
+    const originalRaw = String(f.get("original_price") ?? "").trim();
+    const originalPrice = originalRaw ? Number(originalRaw) : null;
+    const problem = validateListing({ price, originalPrice, imageCount: total });
     if (problem) return setError(problem);
     if (!categories.length) return setError("Pick at least one category");
 
@@ -63,6 +65,7 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
         title: String(f.get("title")).trim(),
         description: String(f.get("description")).trim(),
         price,
+        original_price: originalPrice,
         categories,
         images,
         location_text: String(f.get("location")).trim(),
@@ -148,6 +151,14 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
             <label className={label}>Price (THB)
               <input name="price" type="number" required min={PRICE_MIN} max={PRICE_MAX} defaultValue={listing?.price} className={input} />
               <span className="text-xs font-normal normal-case tracking-normal text-slate-500">{PRICE_MIN}–{PRICE_MAX.toLocaleString()} THB</span>
+            </label>
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-sm font-black uppercase tracking-widest text-red-900">Original price</h2>
+            <label className="block space-y-1 text-[11px] font-bold uppercase tracking-widest text-red-900">Original price (THB, optional)
+              <input name="original_price" type="number" min={PRICE_MIN} max={PRICE_MAX} defaultValue={listing?.original_price ?? undefined} className={input.replace("focus:border-[#0f3d2e]", "focus:border-red-900")} />
+              <span className="text-xs font-normal normal-case tracking-normal text-slate-500">Shown struck through before the price. Must be higher than the price.</span>
             </label>
           </div>
 

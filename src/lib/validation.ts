@@ -18,9 +18,15 @@ export function isSchoolEmail(email: string): boolean {
   return at > 0 && e.slice(at + 1) === SCHOOL_EMAIL_DOMAIN;
 }
 
-export function validateListing(input: { price: number; imageCount: number }): string | null {
+export function validateListing(input: { price: number; originalPrice?: number | null; imageCount: number }): string | null {
   if (!Number.isFinite(input.price) || input.price < PRICE_MIN || input.price > PRICE_MAX) {
     return `Price must be between ${PRICE_MIN} and ${PRICE_MAX.toLocaleString()} THB.`;
+  }
+  if (input.originalPrice != null) {
+    if (!Number.isFinite(input.originalPrice) || input.originalPrice > PRICE_MAX) {
+      return `Original price must be at most ${PRICE_MAX.toLocaleString()} THB.`;
+    }
+    if (input.originalPrice <= input.price) return "Original price must be higher than the price.";
   }
   if (input.imageCount < IMAGES_MIN || input.imageCount > IMAGES_MAX) {
     return `Add between ${IMAGES_MIN} and ${IMAGES_MAX} images.`;

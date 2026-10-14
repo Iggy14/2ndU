@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { FULFILLMENT_LABEL, type Listing, isNegotiating } from "@/lib/types";
 import FavoriteButton from "@/components/FavoriteButton";
+import Price from "@/components/Price";
 import ListingGallery from "./ListingGallery";
 
 const label = "text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e]";
@@ -147,7 +148,7 @@ export default function ListingDetail({
 
         <div className="space-y-1 border-t border-slate-200 pt-5">
           <p className={label}>Price</p>
-          <p className="text-4xl font-black tracking-tight text-[#0f3d2e]">฿{listing.price.toLocaleString()}</p>
+          <Price price={listing.price} originalPrice={listing.original_price} className="text-4xl" />
         </div>
 
         {isOwner ? (

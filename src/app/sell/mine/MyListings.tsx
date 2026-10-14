@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { type Listing, isNegotiating } from "@/lib/types";
+import Price from "@/components/Price";
 
 export default function MyListings({ initial }: { initial: Listing[] }) {
   const [listings, setListings] = useState(initial);
@@ -46,7 +47,7 @@ export default function MyListings({ initial }: { initial: Listing[] }) {
             <Image src={l.images[0]} alt="" width={160} height={160} className="size-20 shrink-0 object-cover" />
             <div className="min-w-0 flex-1">
               <Link href={`/listing/${l.id}`} className="block truncate text-[11px] font-bold uppercase tracking-widest text-slate-900 hover:text-[#0f3d2e]">{l.title}</Link>
-              <p className="mt-1 text-lg font-black tracking-tight text-[#0f3d2e]">฿{l.price.toLocaleString()}</p>
+              <Price price={l.price} originalPrice={l.original_price} className="mt-1 text-lg" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#0f3d2e]">
                 {l.status === "removed" ? "Removed by admin" : l.status === "sold" ? "Sold" : isNegotiating(l) ? "Being negotiated" : "Available"}
               </p>

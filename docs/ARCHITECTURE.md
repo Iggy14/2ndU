@@ -53,7 +53,7 @@ src/
     listingsQuery.ts        Home query shared by server render and the grid's refresh
     types.ts                Types, categories, isNegotiating()
     images.ts               Client-side photo resize before upload
-supabase/migrations/        0001_init.sql, 0002_ban_cleanup_and_edit_lock.sql, 0003_favorites.sql, 0004_listing_categories.sql  (run in order)
+supabase/migrations/        0001_init.sql, 0002_ban_cleanup_and_edit_lock.sql, 0003_favorites.sql, 0004_listing_categories.sql, 0005_original_price.sql  (run in order)
 ```
 
 Pages are server components that fetch data and pass it to a client component, which keeps it live.
@@ -63,7 +63,7 @@ Pages are server components that fetch data and pass it to a client component, w
 ## Data model (Postgres)
 
 - `profiles`: one per auth user (created by trigger). `role`, `is_seller`, `student_id`, `school_email`, `banned`.
-- `listings`: `seller_id`, title, description, price (1–100,000), `images[]` (1–8), `categories text[]` (one or more, combinable; `all` is a tag for items that fit no category. The home "All" pill shows every listing; a category pill shows only listings tagged with it, see `listingsQuery.ts`), `location_text`, `fulfillment` (delivery / pickup / both), `status` (available / sold / removed), `sold_at`, `last_negotiated_at`, `last_negotiated_by`.
+- `listings`: `seller_id`, title, description, price (1–100,000), `original_price` (optional, > price; shown struck through via `components/Price.tsx`, use it wherever a price is displayed), `images[]` (1–8), `categories text[]` (one or more, combinable; `all` is a tag for items that fit no category. The home "All" pill shows every listing; a category pill shows only listings tagged with it, see `listingsQuery.ts`), `location_text`, `fulfillment` (delivery / pickup / both), `status` (available / sold / removed), `sold_at`, `last_negotiated_at`, `last_negotiated_by`.
 - `conversations`: one per (listing, buyer). `messages`: belong to a conversation, with `read_at`.
 - `reports`: listing reports, reviewed in `/admin`.
 - `favorites`: (user_id, listing_id) saved listings; RLS lets users see and change only their own. `FavoriteButton` toggles optimistically and is used on `ListingCard` and the product page.

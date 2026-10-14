@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { type Listing, isNegotiating } from "@/lib/types";
 import FavoriteButton from "./FavoriteButton";
+import Price from "./Price";
 
 export default function ListingCard({
   listing,
@@ -36,7 +37,7 @@ export default function ListingCard({
         )}
       </div>
       <p className="mt-3 truncate text-[11px] font-bold uppercase tracking-widest text-slate-900">{listing.title}</p>
-      <p className="mt-1 text-xl font-black tracking-tight text-[#0f3d2e]">฿{listing.price.toLocaleString()}</p>
+      <Price price={listing.price} originalPrice={listing.original_price} className="mt-1 text-xl" />
       <p className="truncate text-xs text-slate-500">{listing.location_text}</p>
     </Link>
     <FavoriteButton

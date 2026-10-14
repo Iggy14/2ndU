@@ -14,6 +14,7 @@ export type Listing = {
   title: string;
   description: string;
   price: number;
+  original_price: number | null;
   categories: string[];
   images: string[];
   location_text: string;
