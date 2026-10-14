@@ -49,6 +49,7 @@ export default function ListingDetail({
         setListing((cur) => (JSON.stringify(cur) === JSON.stringify(next) ? cur : next));
       }
     };
+    sync(); // the page may have been served from the router cache, so catch up immediately
     const timer = setInterval(sync, 4000);
     window.addEventListener("focus", sync);
 

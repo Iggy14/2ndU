@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Listing, Message } from "@/lib/types";
+import { notifyUnreadChanged } from "@/lib/unreadEvents";
 
 export default function ChatRoom({
   conversationId,
@@ -36,7 +37,7 @@ export default function ChatRoom({
         .eq("conversation_id", conversationId)
         .neq("sender_id", userId)
         .is("read_at", null)
-        .then(() => {});
+        .then(() => notifyUnreadChanged());
     markRead();
 
     // Backup for when the realtime socket is slow, dropped or not authorised yet:

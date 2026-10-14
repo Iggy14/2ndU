@@ -37,6 +37,7 @@ export default function ListingGrid({
       const next = data as Listing[];
       setListings((cur) => (JSON.stringify(cur) === JSON.stringify(next) ? cur : next));
     };
+    sync(); // the page may have been served from the router cache, so catch up immediately
     const timer = setInterval(sync, 5000);
     window.addEventListener("focus", sync);
 

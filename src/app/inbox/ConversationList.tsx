@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { UNREAD_CHANGED } from "@/lib/unreadEvents";
 
 export type ConversationRow = {
   id: string;
@@ -25,9 +27,35 @@ function shortTime(iso: string) {
 
 export default function ConversationList({ rows, isSeller }: { rows: ConversationRow[]; isSeller: boolean }) {
   const pathname = usePathname();
+  const router = useRouter();
   const activeId = pathname.split("/")[2];
   const [tab, setTab] = useState<"all" | "buying" | "selling">("all");
   const [q, setQ] = useState("");
+
+  // The rows come from the server layout, which doesn't re-render on client navigation. Re-fetch it
+  // (debounced) when a message arrives or is read, and on a timer as a backup for dropped Realtime events.
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const refresh = () => {
+      clearTimeout(t);
+      t = setTimeout(() => router.refresh(), 300);
+    };
+    const poll = setInterval(() => document.visibilityState === "visible" && router.refresh(), 8000);
+    window.addEventListener("focus", refresh);
+    window.addEventListener(UNREAD_CHANGED, refresh);
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`inbox-list-${crypto.randomUUID()}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, refresh)
+      .subscribe();
+    return () => {
+      clearTimeout(t);
+      clearInterval(poll);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener(UNREAD_CHANGED, refresh);
+      supabase.removeChannel(channel);
+    };
+  }, [router]);
 
   const visible = rows.filter(
     (r) => (tab === "all" || r.role === tab) && r.title.toLowerCase().includes(q.trim().toLowerCase()),
@@ -84,7 +112,11 @@ export default function ConversationList({ rows, isSeller }: { rows: Conversatio
                       {c.sold ? "Sold · " : ""}
                       {c.lastMessage ? `${c.lastMessage.mine ? "You: " : ""}${c.lastMessage.body}` : "No messages yet"}
                     </p>
-                    {unread > 0 && <span className="shrink-0 bg-white px-1.5 py-0.5 text-[10px] font-bold text-[#0f3d2e]">{unread}</span>}
+                    {unread > 0 && (
+                      <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white">
+                        {unread > 99 ? "99+" : unread}
+                      </span>
+                    )}
                   </div>
                 </div>
               </Link>
