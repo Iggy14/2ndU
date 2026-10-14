@@ -122,6 +122,16 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Respect "reduce motion": drop entrance animations and smooth scrolling. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -131,5 +141,10 @@ body {
   }
   html {
     @apply font-sans;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 }

@@ -16,7 +16,7 @@ export default function CategoryFilter({ q, cat }: { q: string; cat: string }) {
   };
 
   const pill = (active: boolean) =>
-    `shrink-0 border px-4 py-2 text-[11px] font-bold uppercase tracking-widest ${
+    `shrink-0 border px-4 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200 ${
       active ? "border-[#0f3d2e] bg-[#0f3d2e] text-white" : "border-slate-300 text-slate-700 hover:border-[#0f3d2e]"
     }`;
 

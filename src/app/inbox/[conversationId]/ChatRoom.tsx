@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Listing, Message } from "@/lib/types";
 
@@ -118,15 +120,19 @@ export default function ChatRoom({
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
-      <Link href={`/listing/${listing.id}`} className="flex items-center gap-3 border-b border-slate-200 p-3 hover:bg-slate-50">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={listing.images[0]} alt="" className="size-14 object-cover" />
-        <div className="min-w-0">
-          <p className="truncate text-[11px] font-bold uppercase tracking-widest text-slate-900">{listing.title}</p>
-          <p className="text-lg font-black tracking-tight text-[#0f3d2e]">฿{listing.price.toLocaleString()}</p>
-        </div>
-        <span className="ml-auto hidden text-[10px] font-bold uppercase tracking-widest text-slate-500 sm:block">{isSeller ? "You are selling" : "Chatting with seller"}</span>
-      </Link>
+      <div className="flex items-center border-b border-slate-200">
+        <Link href="/inbox" aria-label="Back to all chats" className="flex size-14 shrink-0 items-center justify-center text-[#0f3d2e] hover:bg-slate-50 md:hidden">
+          <ChevronLeft className="size-6" />
+        </Link>
+        <Link href={`/listing/${listing.id}`} className="flex min-w-0 flex-1 items-center gap-3 p-3 hover:bg-slate-50 max-md:pl-0">
+          <Image src={listing.images[0]} alt="" width={112} height={112} className="size-14 shrink-0 object-cover" />
+          <div className="min-w-0">
+            <p className="truncate text-[11px] font-bold uppercase tracking-widest text-slate-900">{listing.title}</p>
+            <p className="text-lg font-black tracking-tight text-[#0f3d2e]">฿{listing.price.toLocaleString()}</p>
+          </div>
+          <span className="ml-auto hidden text-[10px] font-bold uppercase tracking-widest text-slate-500 sm:block">{isSeller ? "You are selling" : "Chatting with seller"}</span>
+        </Link>
+      </div>
 
       <div ref={scroller} className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4">
         {messages.length === 0 && <p className="text-center text-sm text-slate-500">Say hi and agree on price and handover.</p>}

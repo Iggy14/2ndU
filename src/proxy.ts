@@ -25,9 +25,10 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims verifies the JWT locally (cached JWKS) instead of a network call to Supabase on every
+  // navigation, and still refreshes an expired session.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims ?? null;
 
   const path = request.nextUrl.pathname;
   if (!user && LOGIN_REQUIRED.some((p) => path.startsWith(p))) {

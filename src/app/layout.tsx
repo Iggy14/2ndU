@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={cn("h-full", "antialiased", jakarta.variable, serif.variable)}>
+    <html lang="en" data-scroll-behavior="smooth" className={cn("h-full", "antialiased", jakarta.variable, serif.variable)}>
       <body className="flex min-h-full flex-col overflow-x-clip bg-white text-slate-900">
         <Nav />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-6 pt-0">{children}</main>

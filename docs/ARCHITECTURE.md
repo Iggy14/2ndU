@@ -48,22 +48,22 @@ src/
   components/               Nav, MobileNav (hamburger drawer, shadcn Sheet), SearchSheet (nav search button → top panel with search box + category chips),  CategoryFilter (category pills above the grid), ui/ (shadcn), ChatsLink (unread badge), ListingCard, ListingGrid, ListingForm, ...
   lib/
     supabase/client.ts      Browser client
-    supabase/server.ts      Server client (cookies)
+    supabase/server.ts      Server client (cookies) + getUserId() (local JWT check; use instead of auth.getUser() unless you need fresh account fields)
     validation.ts           Student ID regex, school email domain, price/image limits (+ .test.ts)
     listingsQuery.ts        Home query shared by server render and the grid's refresh
     types.ts                Types, categories, isNegotiating()
     images.ts               Client-side photo resize before upload
-supabase/migrations/        0001_init.sql, 0002_ban_cleanup_and_edit_lock.sql, 0003_favorites.sql  (run in order)
+supabase/migrations/        0001_init.sql, 0002_ban_cleanup_and_edit_lock.sql, 0003_favorites.sql, 0004_listing_categories.sql  (run in order)
 ```
 
 Pages are server components that fetch data and pass it to a client component, which keeps it live.
 
-**No back button.** Pages have no in-app back button; users go back with the browser/OS back gesture, which Next restores from its client router cache (no reload, scroll position kept).
+**No back button** (except chat). Pages have no in-app back button; users go back with the browser/OS back gesture, which Next restores from its client router cache (no reload, scroll position kept). The one exception is the chat room on mobile (`ChatRoom` header, `md:hidden`), which links to `/inbox` because the list and chat are separate screens there.
 
 ## Data model (Postgres)
 
 - `profiles`: one per auth user (created by trigger). `role`, `is_seller`, `student_id`, `school_email`, `banned`.
-- `listings`: `seller_id`, title, description, price (1–100,000), `images[]` (1–8), `location_text`, `fulfillment` (delivery / pickup / both), `status` (available / sold / removed), `sold_at`, `last_negotiated_at`, `last_negotiated_by`.
+- `listings`: `seller_id`, title, description, price (1–100,000), `images[]` (1–8), `categories text[]` (one or more, combinable; `all` is a tag for items that fit no category. The home "All" pill shows every listing; a category pill shows only listings tagged with it, see `listingsQuery.ts`), `location_text`, `fulfillment` (delivery / pickup / both), `status` (available / sold / removed), `sold_at`, `last_negotiated_at`, `last_negotiated_by`.
 - `conversations`: one per (listing, buyer). `messages`: belong to a conversation, with `read_at`.
 - `reports`: listing reports, reviewed in `/admin`.
 - `favorites`: (user_id, listing_id) saved listings; RLS lets users see and change only their own. `FavoriteButton` toggles optimistically and is used on `ListingCard` and the product page.
@@ -109,6 +109,13 @@ Site-wide look (set by the home hero and nav; apply it to every new or restyled 
 - Headings `font-black uppercase`; prices bold dark green sans; square corners (no `rounded-*` on cards/buttons).
 - Primary button: solid white on green (or solid green on white); secondary: outlined.
 - No ghost-text bands below the hero.
+
+## Motion
+
+- `src/app/template.tsx` fades every top-level route in on navigation (opacity only).
+- `components/Reveal.tsx` fades/slides content up when it scrolls into view; wrap sections or cards in it (`delay` in ms to stagger).
+- One-off entrances use `tw-animate-css` classes (`animate-in fade-in slide-in-from-bottom-4 fill-mode-both delay-300`), as in `Hero`.
+- `globals.css` disables animations under `prefers-reduced-motion`; `Reveal` has its own `motion-reduce:` fallbacks. Smooth scroll is on `<html>` via `data-scroll-behavior`.
 
 ## Configuration
 

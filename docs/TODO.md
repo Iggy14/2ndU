@@ -47,3 +47,7 @@ Verified so far: seller verification, chat both directions (with polling backup)
 
 ## Privacy
 - [ ] `profiles` is readable by everyone (policy `profiles readable`), so `student_id` and `school_email` can be fetched through the API even though no page shows them. Fix: make a `public_profiles` view (id, display_name, is_seller, created_at) for public reads and restrict the table to the owner/admin; then update the queries that read other users' profiles (`listing/[id]/page.tsx`, `seller/[id]/page.tsx`, inbox).
+
+## Performance
+- [ ] `become-seller/page.tsx` still calls `supabase.auth.getUser()` on purpose: it needs `email_confirmed_at` and `new_email`, which are not in the JWT claims. Leave unless those checks move server-side.
+- [ ] Source images in `public/` are large (`classic-wardrobe.png` 2.1 MB, `auth-bg.jpg` 2.1 MB, `parrot.png` 1 MB); `next/image` serves optimized copies, but compressing the originals speeds the first (uncached) hit.

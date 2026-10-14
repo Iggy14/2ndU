@@ -1,15 +1,13 @@
 import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUserId } from "@/lib/supabase/server";
 import AdminPanel, { type ReportRow } from "./AdminPanel";
 
 export default async function AdminPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/admin");
+  const userId = await getUserId(supabase);
+  if (!userId) redirect("/login?next=/admin");
 
-  const { data: me } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  const { data: me } = await supabase.from("profiles").select("role").eq("id", userId).single();
   if (me?.role !== "admin") notFound();
 
   const { data: reports } = await supabase

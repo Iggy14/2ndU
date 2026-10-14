@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Listing } from "@/lib/types";
 import { homeListingsQuery } from "@/lib/listingsQuery";
 import ListingCard from "./ListingCard";
+import Reveal from "./Reveal";
 
 // Renders the grid and keeps it live: negotiating changes and new, sold or removed
 // listings appear / disappear without a refresh. Realtime pushes are the fast path; a periodic
@@ -68,8 +69,10 @@ export default function ListingGrid({
   }
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {listings.map((l) => (
-        <ListingCard key={l.id} listing={l} viewerId={viewerId} favorited={favoriteIds.includes(l.id)} />
+      {listings.map((l, i) => (
+        <Reveal key={l.id} delay={(i % 4) * 80}>
+          <ListingCard listing={l} viewerId={viewerId} favorited={favoriteIds.includes(l.id)} />
+        </Reveal>
       ))}
     </div>
   );

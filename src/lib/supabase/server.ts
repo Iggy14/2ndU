@@ -23,3 +23,11 @@ export async function createClient() {
     },
   );
 }
+
+// Id of the signed-in user, or null. Verifies the JWT locally (no round trip to Supabase), which is
+// all most pages need: data access is still enforced by RLS. Use `auth.getUser()` instead when you
+// need fresh account fields (email confirmation, pending email change).
+export async function getUserId(supabase: Awaited<ReturnType<typeof createClient>>): Promise<string | null> {
+  const { data } = await supabase.auth.getClaims();
+  return data?.claims?.sub ?? null;
+}

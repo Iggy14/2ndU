@@ -16,6 +16,6 @@ export function homeListingsQuery(
     .order("created_at", { ascending: false })
     .range(from, from + PAGE_SIZE - 1);
   if (q) query = query.ilike("title", `%${q.replace(/[%_]/g, "")}%`);
-  if (cat) query = query.eq("category", cat);
+  if (cat) query = query.contains("categories", [cat]);
   return query;
 }

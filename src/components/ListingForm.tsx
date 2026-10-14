@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { resizeImage } from "@/lib/images";
-import { CATEGORIES, FULFILLMENT_LABEL, type Listing } from "@/lib/types";
+import { FULFILLMENT_LABEL, LISTING_CATEGORIES, type Listing } from "@/lib/types";
 import { PRICE_MAX, PRICE_MIN, validateListing } from "@/lib/validation";
 import PhotoUploader from "./PhotoUploader";
 
@@ -23,12 +23,17 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
   const editing = !!listing;
   const [kept, setKept] = useState<string[]>(listing?.images ?? []);
   const [files, setFiles] = useState<File[]>([]);
+  const [categories, setCategories] = useState<string[]>(listing?.categories ?? []);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const input = "w-full border border-slate-300 px-3 py-2 text-sm font-normal normal-case tracking-normal focus:border-[#0f3d2e] focus:outline-none";
-  const label = "block space-y-1 text-[11px] font-bold uppercase tracking-widest text-slate-700";
+  const label = "block space-y-1 text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e]";
   const total = kept.length + files.length;
+
+  function toggleCategory(c: string) {
+    setCategories((cur) => (cur.includes(c) ? cur.filter((x) => x !== c) : [...cur, c]));
+  }
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,6 +42,7 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
     const price = Number(f.get("price"));
     const problem = validateListing({ price, imageCount: total });
     if (problem) return setError(problem);
+    if (!categories.length) return setError("Pick at least one category");
 
     setBusy(true);
     const uploaded: string[] = [];
@@ -57,7 +63,7 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
         title: String(f.get("title")).trim(),
         description: String(f.get("description")).trim(),
         price,
-        category: String(f.get("category")),
+        categories,
         images,
         location_text: String(f.get("location")).trim(),
         fulfillment: String(f.get("fulfillment")) as Listing["fulfillment"],
@@ -104,11 +110,21 @@ export default function ListingForm({ userId, listing }: { userId: string; listi
           <label className={label}>Description
             <textarea name="description" rows={5} maxLength={2000} defaultValue={listing?.description} className={input} placeholder="Condition, age, brand, reason for selling…" />
           </label>
-          <label className={label}>Category
-            <select name="category" defaultValue={listing?.category} className={`${input} capitalize`}>
-              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </label>
+          <fieldset className={label}>
+            <legend>Categories (pick one or more)</legend>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {LISTING_CATEGORIES.map((c) => {
+                const on = categories.includes(c);
+                return (
+                  <label key={c} className={`cursor-pointer border px-3 py-2 ${on ? "border-[#0f3d2e] bg-[#0f3d2e] text-white" : "border-slate-300 hover:border-[#0f3d2e]"}`}>
+                    <input type="checkbox" className="sr-only" checked={on} onChange={() => toggleCategory(c)} />
+                    {c}
+                  </label>
+                );
+              })}
+            </div>
+            <span className="text-xs font-normal normal-case tracking-normal text-slate-500">Every item shows on the main page. Pick &ldquo;all&rdquo; if it fits no category; add categories to also show it when people filter by them.</span>
+          </fieldset>
           <label className={label}>Where is the item?
             <input name="location" required minLength={2} maxLength={200} defaultValue={listing?.location_text} className={input} placeholder="e.g. Lake Rangsit apartments, building B" />
           </label>

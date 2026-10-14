@@ -8,7 +8,8 @@ import { FULFILLMENT_LABEL, type Listing, isNegotiating } from "@/lib/types";
 import FavoriteButton from "@/components/FavoriteButton";
 import ListingGallery from "./ListingGallery";
 
-const label = "text-[11px] font-bold uppercase tracking-widest text-slate-500";
+const label = "text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e]";
+const value = "text-lg font-bold text-slate-900";
 const TABS = [
   { key: "details", label: "Details" },
   { key: "delivery", label: "Delivery" },
@@ -124,8 +125,8 @@ export default function ListingDetail({
         )}
 
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-black uppercase tracking-widest text-slate-900 sm:text-3xl">{listing.title}</h1>
+          <div className="min-w-0">
+            <h1 className="break-words text-xl font-black uppercase tracking-widest text-slate-900 sm:text-3xl">{listing.title}</h1>
             <p className="mt-2 text-xs text-slate-500">
               Sold by{" "}
               <Link href={`/seller/${listing.seller_id}`} className="font-bold text-[#0f3d2e] underline">
@@ -173,10 +174,10 @@ export default function ListingDetail({
             ))}
           </div>
           <div className="space-y-2 pt-4 text-sm text-slate-700">
-            {tab === "details" && <p><span className={label}>Location: </span>{listing.location_text}</p>}
+            {tab === "details" && <p><span className={label}>Location: </span><span className={value}>{listing.location_text}</span></p>}
             {tab === "delivery" && (
               <>
-                <p><span className={label}>Handover: </span>{FULFILLMENT_LABEL[listing.fulfillment]}</p>
+                <p><span className={label}>Handover: </span><span className={value}>{FULFILLMENT_LABEL[listing.fulfillment]}</span></p>
                 {listing.delivery_note && <p><span className={label}>Notes: </span>{listing.delivery_note}</p>}
               </>
             )}

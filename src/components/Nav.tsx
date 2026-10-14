@@ -9,9 +9,8 @@ import SearchSheet from "./SearchSheet";
 
 export default async function Nav() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims ? { id: data.claims.sub, email: data.claims.email } : null;
 
   let profile: Profile | null = null;
   let unread = 0;
@@ -28,9 +27,9 @@ export default async function Nav() {
     unread = u.count ?? 0;
   }
 
-  const link = "text-[11px] font-bold uppercase tracking-widest text-white/90 hover:text-white";
-  const circle = "flex size-9 md:size-10 items-center justify-center rounded-full text-white hover:bg-white/10";
-  const signUp = "border border-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-white hover:bg-white hover:text-[#0f3d2e]";
+  const link = "text-[11px] font-bold uppercase tracking-widest text-white/90 transition-colors duration-200 hover:text-white";
+  const circle = "flex size-9 md:size-10 items-center justify-center rounded-full text-white transition-colors duration-200 hover:bg-white/10";
+  const signUp = "border border-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-white transition-colors duration-200 hover:bg-white hover:text-[#0f3d2e]";
 
   const links = (cls: string) => (
     <>

@@ -15,15 +15,17 @@ export default function AuthSplit({ title, subtitle, children }: { title: string
         </div>
       </div>
 
-      <div aria-hidden className="relative hidden overflow-hidden bg-[#0f3d2e] bg-[url('/auth-bg.jpg')] bg-cover bg-center md:block">
+      <div aria-hidden className="relative hidden overflow-hidden bg-[#0f3d2e] md:block">
+        <Image src="/auth-bg.jpg" alt="" fill sizes="50vw" className="object-cover" />
         <div className="absolute inset-0 flex select-none items-center justify-center opacity-30">
           <Image src="/logo-white.png" alt="" width={600} height={258} className="w-[80%] max-w-none" />
         </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/parrot.png"
           alt=""
-          className="absolute inset-0 mx-auto h-full w-auto max-w-full object-contain p-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.35)]"
+          fill
+          sizes="50vw"
+          className="object-contain p-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.35)]"
         />
       </div>
     </section>

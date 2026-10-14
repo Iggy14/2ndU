@@ -1,14 +1,12 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUserId } from "@/lib/supabase/server";
 import type { Listing } from "@/lib/types";
 import ListingDetail from "./ListingDetail";
 
 export default async function ListingPage({ params }: PageProps<"/listing/[id]">) {
   const { id } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const userId = await getUserId(supabase);
 
   const { data: listing } = await supabase.from("listings").select("*").eq("id", id).maybeSingle();
   if (!listing) notFound();
@@ -19,8 +17,8 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
     .eq("id", listing.seller_id)
     .single();
 
-  const { data: fav } = user
-    ? await supabase.from("favorites").select("listing_id").eq("user_id", user.id).eq("listing_id", id).maybeSingle()
+  const { data: fav } = userId
+    ? await supabase.from("favorites").select("listing_id").eq("user_id", userId).eq("listing_id", id).maybeSingle()
     : { data: null };
 
   return (
@@ -28,7 +26,7 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
       initial={listing as Listing}
       favorited={!!fav}
       sellerName={seller?.display_name ?? "Seller"}
-      viewerId={user?.id ?? null}
+      viewerId={userId}
     />
   );
 }

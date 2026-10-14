@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const arrow =
@@ -13,8 +14,14 @@ export default function ListingGallery({ images, title, sold }: { images: string
 
   return (
     <div className="relative min-h-[24rem] overflow-hidden bg-slate-100 md:min-h-[32rem]">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={images[photo]} alt={title} className={`absolute inset-0 h-full w-full object-cover ${sold ? "opacity-60" : ""}`} />
+      <Image
+        src={images[photo]}
+        alt={title}
+        fill
+        priority
+        sizes="(min-width: 768px) 50vw, 100vw"
+        className={`object-cover ${sold ? "opacity-60" : ""}`}
+      />
       {many && (
         <>
           <div className="absolute inset-x-0 top-4 flex justify-center gap-2">

@@ -14,7 +14,7 @@ export type Listing = {
   title: string;
   description: string;
   price: number;
-  category: string;
+  categories: string[];
   images: string[];
   location_text: string;
   fulfillment: "delivery" | "pickup" | "both";
@@ -44,6 +44,10 @@ export const CATEGORIES = [
   "bikes",
   "other",
 ] as const;
+
+// Choices when posting. "all" is a plain tag for items that fit no category; the home "All" pill shows every listing regardless.
+export const ALL_CATEGORY = "all";
+export const LISTING_CATEGORIES = [ALL_CATEGORY, ...CATEGORIES] as const;
 
 export const FULFILLMENT_LABEL: Record<Listing["fulfillment"], string> = {
   delivery: "Seller can deliver",

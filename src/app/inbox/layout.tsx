@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUserId } from "@/lib/supabase/server";
 import ConversationList, { type ConversationRow } from "./ConversationList";
 
 type Row = {
@@ -13,24 +13,22 @@ type Row = {
 // Two-pane chat layout: conversation list on the left, the open chat (or empty state) on the right.
 export default async function InboxLayout({ children }: LayoutProps<"/inbox">) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/inbox");
+  const userId = await getUserId(supabase);
+  if (!userId) redirect("/login?next=/inbox");
 
   // Non-sellers only have buying chats, so the Selling tab is hidden for them.
-  const { data: profile } = await supabase.from("profiles").select("is_seller").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("is_seller").eq("id", userId).single();
   const isSeller = !!profile?.is_seller;
 
   const { data } = await supabase
     .from("conversations")
     .select("id, buyer_id, seller_id, last_message_at, listings(title, images, status)")
-    .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+    .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
     .order("last_message_at", { ascending: false });
   const all = (data ?? []) as unknown as Row[];
 
   const [{ data: unread }, { data: recent }] = await Promise.all([
-    supabase.from("messages").select("conversation_id").is("read_at", null).neq("sender_id", user.id),
+    supabase.from("messages").select("conversation_id").is("read_at", null).neq("sender_id", userId),
     supabase
       .from("messages")
       .select("conversation_id, body, sender_id")
@@ -45,12 +43,12 @@ export default async function InboxLayout({ children }: LayoutProps<"/inbox">) {
   (unread ?? []).forEach((m) => unreadBy.set(m.conversation_id, (unreadBy.get(m.conversation_id) ?? 0) + 1));
   const lastBy = new Map<string, { body: string; mine: boolean }>();
   (recent ?? []).forEach((m) => {
-    if (!lastBy.has(m.conversation_id)) lastBy.set(m.conversation_id, { body: m.body, mine: m.sender_id === user.id });
+    if (!lastBy.has(m.conversation_id)) lastBy.set(m.conversation_id, { body: m.body, mine: m.sender_id === userId });
   });
 
   const rows: ConversationRow[] = all.map((c) => ({
     id: c.id,
-    role: c.buyer_id === user.id ? "buying" : "selling",
+    role: c.buyer_id === userId ? "buying" : "selling",
     title: c.listings?.title ?? "Listing removed",
     image: c.listings?.images[0] ?? null,
     sold: c.listings?.status === "sold",

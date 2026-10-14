@@ -56,7 +56,7 @@ export default function BecomeSellerForm({ email, emailVerified, pendingEmail }:
 
       {!emailVerified ? (
         <form onSubmit={sendEmailLink} className="space-y-3">
-          <h2 className="text-[11px] font-bold uppercase tracking-widest text-slate-900">Step 1 · Verify your school email</h2>
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e]">Step 1 · Verify your school email</h2>
           <p className="text-sm text-slate-600">
             Your account email will change from <b>{email}</b> to your school email, which you&apos;ll use to log in from now on.
           </p>
@@ -73,7 +73,7 @@ export default function BecomeSellerForm({ email, emailVerified, pendingEmail }:
         </form>
       ) : (
         <form onSubmit={submitId} className="space-y-3">
-          <h2 className="text-[11px] font-bold uppercase tracking-widest text-slate-900">Step 2 · Enter your student ID</h2>
+          <h2 className="text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e]">Step 2 · Enter your student ID</h2>
           <p className="text-sm font-bold text-[#0f3d2e]">✓ {email} verified</p>
           <input className={input} inputMode="numeric" required maxLength={7} placeholder="Student ID (7 digits)" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
           <button disabled={busy} className={button}>{busy ? "Checking…" : "Start selling"}</button>

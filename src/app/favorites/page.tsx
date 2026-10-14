@@ -1,19 +1,17 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUserId } from "@/lib/supabase/server";
 import type { Listing } from "@/lib/types";
 import ListingCard from "@/components/ListingCard";
 
 export default async function FavoritesPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/favorites");
+  const userId = await getUserId(supabase);
+  if (!userId) redirect("/login?next=/favorites");
 
   const { data } = await supabase
     .from("favorites")
     .select("listing:listings(*)")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
   // Removed listings are hidden by RLS, so their embedded row comes back null.
   const listings = (data ?? []).map((f) => f.listing as unknown as Listing | null).filter((l): l is Listing => !!l);
@@ -26,7 +24,7 @@ export default async function FavoritesPage() {
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {listings.map((l) => (
-            <ListingCard key={l.id} listing={l} viewerId={user.id} favorited />
+            <ListingCard key={l.id} listing={l} viewerId={userId} favorited />
           ))}
         </div>
       )}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 export type ConversationRow = {
@@ -70,8 +71,7 @@ export default function ConversationList({ rows, isSeller }: { rows: Conversatio
                 href={`/inbox/${c.id}`}
                 className={`flex items-center gap-3 bg-[#0f3d2e] px-3 py-3 text-white ${active ? "ring-2 ring-inset ring-white/60" : "hover:bg-[#0f3d2e]/90"}`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {c.image ? <img src={c.image} alt="" className="size-11 shrink-0 object-cover" /> : <div className="size-11 shrink-0 bg-white/20" />}
+                {c.image ? <Image src={c.image} alt="" width={88} height={88} className="size-11 shrink-0 object-cover" /> : <div className="size-11 shrink-0 bg-white/20" />}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
                     <p className="truncate text-[11px] font-bold uppercase tracking-widest">{c.title}</p>
