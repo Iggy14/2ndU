@@ -31,7 +31,7 @@ export default async function Nav() {
   const circle = "flex size-9 md:size-10 items-center justify-center rounded-full text-white transition-colors duration-200 hover:bg-white/10";
   const signUp = "border border-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-white transition-colors duration-200 hover:bg-white hover:text-[#0f3d2e]";
 
-  const links = (cls: string) => (
+  const links = (cls: string, showChats = true) => (
     <>
       <Link href="/" className={cls}>Browse</Link>
       {profile?.is_seller && !profile.banned && (
@@ -44,7 +44,7 @@ export default async function Nav() {
         <Link href="/become-seller" className={cls}>Become a seller</Link>
       )}
       {user && <Link href="/favorites" className={cls}>Favourites</Link>}
-      {user && <ChatsLink userId={user.id} initialUnread={unread} className={cls} />}
+      {user && showChats && <ChatsLink userId={user.id} initialUnread={unread} className={cls} />}
       {profile?.role === "admin" && <Link href="/admin" className={cls}>Admin</Link>}
     </>
   );
@@ -62,6 +62,11 @@ export default async function Nav() {
         </Link>
         <div className="hidden items-center gap-10 md:absolute md:left-1/2 md:flex md:-translate-x-1/2">{links(link)}</div>
         <div className="flex items-center gap-2 md:gap-3">
+          {user && (
+            <span className="md:hidden">
+              <ChatsLink userId={user.id} initialUnread={unread} className={circle} icon />
+            </span>
+          )}
           <SearchSheet className={circle} />
           <div className="hidden items-center gap-3 md:flex">
             {user ? (
@@ -79,7 +84,7 @@ export default async function Nav() {
             )}
           </div>
           <MobileNav>
-            {links("font-medium text-[#1c1f1a]")}
+            {links("font-medium text-[#1c1f1a]", false)}
             <div className="my-2 border-t border-black/5" />
             {user ? (
               <SignOutButton />

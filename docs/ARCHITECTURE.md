@@ -99,7 +99,7 @@ Pages use Supabase Realtime (`postgres_changes`) for fast pushes, **plus a polli
 
 - `/auth/confirm` (route handler) is where every Supabase email link lands: signup confirmation, password reset, email change. It handles `?code=` (default templates) and `?token_hash=&type=` (custom templates, works across devices). Reset links go on to `/reset-password`; a bad link goes to `/login?error=`.
 - `/forgot-password` and `/reset-password` share `PasswordForm`. Login shows "Resend confirmation email" when the account is unconfirmed.
-- New-message email: a Supabase Database Webhook (INSERT on `messages`, POST to `/api/notify-message`, header `x-webhook-secret` = `NOTIFY_WEBHOOK_SECRET`) makes the route email the other participant through Resend. It sends one email per burst (skipped if the sender already has an earlier unread message in that chat) and never to banned users. Needs `SUPABASE_SERVICE_ROLE_KEY` (server only), `RESEND_API_KEY`, `EMAIL_FROM`, `NEXT_PUBLIC_SITE_URL`. Supabase dashboard: add `<site>/auth/confirm` to Auth → Redirect URLs.
+- New-message email: a Supabase Database Webhook (INSERT on `messages`, POST to `/api/notify-message`, header `x-webhook-secret` = `NOTIFY_WEBHOOK_SECRET`) makes the route email the other participant through Gmail SMTP (nodemailer + app password; ~500 emails/day cap, fine for a portfolio demo). It sends one email per burst (skipped if the sender already has an earlier unread message in that chat) and never to banned users. Needs `SUPABASE_SERVICE_ROLE_KEY` (server only), `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `NEXT_PUBLIC_SITE_URL`. Supabase dashboard: add `<site>/auth/confirm` to Auth → Redirect URLs.
 
 ## Visual theme
 

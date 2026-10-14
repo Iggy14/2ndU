@@ -32,7 +32,7 @@ Verified so far: seller verification, chat both directions (with polling backup)
 - [ ] Image moderation / size cap on upload (client resize exists; no server limit)
 
 ## Before launch
-- [ ] Set up email (code is written, config is not): add the `/auth/confirm` redirect URLs in Supabase; create a Resend account and fill the env vars from `.env.example` on Vercel; create the Supabase Database Webhook on `messages` INSERT → `<site>/api/notify-message` with the `x-webhook-secret` header. Details in ARCHITECTURE "Auth emails and notifications".
+- [ ] Set up email (code is written, config is not): add the `/auth/confirm` redirect URLs in Supabase; fill the env vars from `.env.example` on Vercel (Gmail app password). If the site ever opens to the public, switch `src/app/api/notify-message/route.ts` to Resend with a verified domain (Gmail caps ~500/day and may hit spam); create the Supabase Database Webhook on `messages` INSERT → `<site>/api/notify-message` with the `x-webhook-secret` header. Details in ARCHITECTURE "Auth emails and notifications".
 - [ ] Deploy (Vercel) and set env vars; set Supabase Site URL and redirect URLs to the real domain
 - [ ] Custom SMTP in Supabase (default email sender is heavily rate-limited)
 - [ ] Add a privacy / terms page; state clearly that student IDs are only format-checked

@@ -1,9 +1,10 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import nodemailer from "nodemailer";
 
 // Called by a Supabase Database Webhook on INSERT into `messages`. Emails the other
-// participant via Resend. Auth is a shared secret header; the service-role key is only
+// participant through Gmail SMTP (app password; fine for a small portfolio audience). Auth is a shared secret header; the service-role key is only
 // used here, on the server, to read the recipient's email from auth.
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
@@ -19,8 +20,8 @@ export async function POST(request: NextRequest) {
   if (!secretOk(request.headers.get("x-webhook-secret"))) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  const { RESEND_API_KEY, EMAIL_FROM, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
-  if (!RESEND_API_KEY || !EMAIL_FROM || !NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  const { GMAIL_USER, GMAIL_APP_PASSWORD, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
+  if (!GMAIL_USER || !GMAIL_APP_PASSWORD || !NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: "email not configured" }, { status: 500 });
   }
 
@@ -62,18 +63,18 @@ export async function POST(request: NextRequest) {
   const link = `${site}/inbox/${conv.id}`;
   const preview = String(msg.body).slice(0, 200);
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: EMAIL_FROM,
+  const transport = nodemailer.createTransport({ service: "gmail", auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD } });
+  try {
+    await transport.sendMail({
+      from: `2ndU <${GMAIL_USER}>`,
       to,
       subject: `New message about "${title}"`,
       html: `<p><b>${esc(from)}</b> sent you a message about <b>${esc(title)}</b>:</p>
 <blockquote>${esc(preview)}</blockquote>
 <p><a href="${esc(link)}">Open the chat on 2ndU</a></p>`,
-    }),
-  });
-  if (!res.ok) return NextResponse.json({ error: "send failed", status: res.status }, { status: 502 });
+    });
+  } catch {
+    return NextResponse.json({ error: "send failed" }, { status: 502 });
+  }
   return NextResponse.json({ sent: true });
 }
