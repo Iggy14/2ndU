@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Listing } from "@/lib/types";
-import { homeListingsQuery } from "@/lib/listingsQuery";
+import Link from "next/link";
+import { homeListingsQuery, type ListingFilters } from "@/lib/listingsQuery";
 import ListingCard from "./ListingCard";
 import Reveal from "./Reveal";
 
@@ -14,16 +15,12 @@ export default function ListingGrid({
   initial,
   viewerId,
   favoriteIds,
-  q,
-  cat,
-  page,
+  filters,
 }: {
   initial: Listing[];
   viewerId: string | null;
   favoriteIds: string[];
-  q: string;
-  cat: string;
-  page: number;
+  filters: ListingFilters;
 }) {
   const [listings, setListings] = useState(initial);
 
@@ -32,7 +29,7 @@ export default function ListingGrid({
 
     const sync = async () => {
       if (document.visibilityState !== "visible") return;
-      const { data } = await homeListingsQuery(supabase, { q, cat, page });
+      const { data } = await homeListingsQuery(supabase, filters);
       if (!data) return;
       const next = data as Listing[];
       setListings((cur) => (JSON.stringify(cur) === JSON.stringify(next) ? cur : next));
@@ -63,13 +60,20 @@ export default function ListingGrid({
       window.removeEventListener("focus", sync);
       supabase.removeChannel(channel);
     };
-  }, [q, cat, page]);
+  }, [filters]);
 
   if (listings.length === 0) {
-    return <p className="py-12 text-center text-slate-500">No items found.</p>;
+    return (
+      <div className="space-y-3 py-12 text-center">
+        <p className="text-slate-500">No items match your search.</p>
+        <Link href="/browse" className="inline-block text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e] underline underline-offset-4">
+          Clear filters
+        </Link>
+      </div>
+    );
   }
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
       {listings.map((l, i) => (
         <Reveal key={l.id} delay={(i % 4) * 80}>
           <ListingCard listing={l} viewerId={viewerId} favorited={favoriteIds.includes(l.id)} />

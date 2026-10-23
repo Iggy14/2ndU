@@ -126,7 +126,7 @@ export default function ChatRoom({
         <Link href="/inbox" aria-label="Back to all chats" className="flex size-14 shrink-0 items-center justify-center text-[#0f3d2e] hover:bg-slate-50 md:hidden">
           <ChevronLeft className="size-6" />
         </Link>
-        <Link href={`/listing/${listing.id}`} className="flex min-w-0 flex-1 items-center gap-3 p-3 hover:bg-slate-50 max-md:pl-0">
+        <Link href={`/listing/${listing.id}`} className="flex min-w-0 flex-1 items-center gap-3 p-3 transition-colors hover:bg-slate-50 max-md:pl-0">
           <Image src={listing.images[0]} alt="" width={112} height={112} className="size-14 shrink-0 object-cover" />
           <div className="min-w-0">
             <p className="truncate text-[11px] font-bold uppercase tracking-widest text-slate-900">{listing.title}</p>
@@ -141,7 +141,7 @@ export default function ChatRoom({
         {messages.map((m) => {
           const mine = m.sender_id === userId;
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+            <div key={m.id} className={`animate-in fade-in slide-in-from-bottom-1 duration-200 flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[75%] border px-3 py-2 ${mine ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-white"}`}>
                 <p className="whitespace-pre-wrap text-sm text-slate-900">{m.body}</p>
                 <p suppressHydrationWarning className="mt-1 text-right text-[10px] text-slate-400">
@@ -160,7 +160,7 @@ export default function ChatRoom({
       ) : (
         <form onSubmit={send} className="flex gap-2 border-t border-slate-200 p-3">
           <input value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} placeholder="Type a message…" className="flex-1 border border-slate-300 px-3 py-2 text-sm focus:border-[#0f3d2e] focus:outline-none" />
-          <button className="bg-[#0f3d2e] px-6 text-[11px] font-bold uppercase tracking-widest text-white hover:bg-[#0f3d2e]/90">Send</button>
+          <button className="bg-[#0f3d2e] px-6 text-[11px] font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#0f3d2e]/90">Send</button>
         </form>
       )}
       {error && <p className="px-3 pb-2 text-sm text-red-600">{error}</p>}

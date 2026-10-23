@@ -34,7 +34,8 @@ src/
   proxy.ts                  Refreshes the Supabase session cookie; redirects logged-out users away from
                             /sell, /inbox, /become-seller, /admin (optimistic only, not security)
   app/
-    page.tsx                Home: hero + live grid (filtered by ?q= / ?cat=)
+    page.tsx                Home: hero + category tiles, "Just listed" preview, how it works, sell band (old /?q= links redirect to /browse)
+    browse/page.tsx         Browse: live grid with search/category filter/pagination (?q= / ?cat= / ?sort= / ?min= / ?max= / ?page=; parsed by `parseFilters`, built by `browseHref` in listingsQuery.ts)
     login/, signup/         AuthForm (email + password)
     become-seller/          Seller verification (school email, then student ID)
     listing/[id]/           Product page (ListingDetail: live status, chat button, report)
@@ -45,7 +46,7 @@ src/
     favorites/              Saved listings (logged-in)
     seller/[id]/            Public seller profile + their listings (no student ID / email shown)
     admin/                  Report queue
-  components/               Nav, MobileNav (hamburger drawer, shadcn Sheet), SearchSheet (nav search button → top panel with search box + category chips),  CategoryFilter (category pills above the grid), ui/ (shadcn), ChatsLink (unread badge), ListingCard, ListingGrid, ListingForm, ...
+  components/               Nav, MobileNav (hamburger drawer, shadcn Sheet), SearchSheet (nav search button → top panel with search box + category chips),  browse/ (search bar, filter sidebar + mobile drawer, sort, active-filter chips for /browse), ui/ (shadcn), ChatsLink (unread badge), ListingCard, ListingGrid, ListingForm, ...
   lib/
     supabase/client.ts      Browser client
     supabase/server.ts      Server client (cookies) + getUserId() (local JWT check; use instead of auth.getUser() unless you need fresh account fields)
@@ -101,6 +102,10 @@ Pages use Supabase Realtime (`postgres_changes`) for fast pushes, **plus a polli
 - `/forgot-password` and `/reset-password` share `PasswordForm`. Login shows "Resend confirmation email" when the account is unconfirmed.
 - New-message email: a Supabase Database Webhook (INSERT on `messages`, POST to `/api/notify-message`, header `x-webhook-secret` = `NOTIFY_WEBHOOK_SECRET`) makes the route email the other participant through Gmail SMTP (nodemailer + app password; ~500 emails/day cap, fine for a portfolio demo). It sends one email per burst (skipped if the sender already has an earlier unread message in that chat) and never to banned users. Needs `SUPABASE_SERVICE_ROLE_KEY` (server only), `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `NEXT_PUBLIC_SITE_URL`. Supabase dashboard: add `<site>/auth/confirm` to Auth → Redirect URLs.
 
+## Dev seed data
+
+`scripts/seed.mjs` creates 3 fake sellers (`*@seed.2ndu.test`) and 24 listings with generated photos, using the service-role key. Run `node --env-file=.env.local scripts/seed.mjs`; add `--clean` to delete everything it made (matched by the email domain). It writes to the live Supabase project.
+
 ## Visual theme
 
 Site-wide look (set by the home hero and nav; apply it to every new or restyled page):
@@ -115,6 +120,7 @@ Site-wide look (set by the home hero and nav; apply it to every new or restyled 
 - `src/app/template.tsx` fades every top-level route in on navigation (opacity only).
 - `components/Reveal.tsx` fades/slides content up when it scrolls into view; wrap sections or cards in it (`delay` in ms to stagger).
 - One-off entrances use `tw-animate-css` classes (`animate-in fade-in slide-in-from-bottom-4 fill-mode-both delay-300`), as in `Hero`.
+- Product page: gallery and details fade/slide in, and the gallery photo cross-fades when changed (`key` on the `Image`). Chat messages fade in as they arrive. Interactive rows/buttons use `transition-colors`. All CSS-only; no animation library, no layout-affecting animations.
 - `globals.css` disables animations under `prefers-reduced-motion`; `Reveal` has its own `motion-reduce:` fallbacks. Smooth scroll is on `<html>` via `data-scroll-behavior`.
 
 ## Configuration
@@ -124,6 +130,10 @@ Site-wide look (set by the home hero and nav; apply it to every new or restyled 
 The school domain and ID pattern are **duplicated in three places** and must be changed together: `src/lib/validation.ts`, the `become_seller` function in SQL, and the env var.
 
 Supabase dashboard: Email provider on (others off); Site URL = the app URL (needed for the school-email confirmation link); keep email confirmation on for the seller step.
+
+## Caching and rendering (Cache Components)
+
+`cacheComponents: true` is on in `next.config.ts`. Anything that reads cookies, `searchParams` or `params` (the `Nav`, every page) must render under a `<Suspense>`; the root layout wraps `Nav` and `{children}` in one, so pages stream in. Data that is the same for every visitor is cached with `"use cache"` + `cacheLife`: `getHomeData()` in `lib/homeData.ts` (home "Just listed" + category counts, ~1 min). Cached functions cannot read cookies, so they use `createPublicClient()` (`lib/supabase/public.ts`, anon, no session); keep per-user data (favourites, signed-in state) outside them. Listings are written straight from the browser, so there is no server action to call `updateTag` from; changes appear after the revalidate window. Code that calls `Date.now()` (e.g. `isNegotiating`) cannot be prerendered; render it only inside request-time (Suspense) parts. Legacy `/?q=` links are redirected to `/browse` in `proxy.ts`.
 
 ## Commands
 

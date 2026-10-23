@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Libre_Baskerville } from "next/font/google";
 import "./globals.css";
@@ -16,8 +17,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" data-scroll-behavior="smooth" className={cn("h-full", "antialiased", jakarta.variable, serif.variable)}>
       <body className="flex min-h-full flex-col overflow-x-clip bg-white text-slate-900">
-        <Nav />
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-6 pt-0">{children}</main>
+        {/* Nav and pages read cookies / search params, so they stream in behind these boundaries */}
+        <Suspense fallback={<div className="h-24 bg-[#0f3d2e] md:h-20" />}>
+          <Nav />
+        </Suspense>
+        <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-6 pt-0">
+          <Suspense fallback={null}>{children}</Suspense>
+        </main>
         <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-500">
           2ndU is run by students for students. Meet on campus and inspect items before you pay.
         </footer>

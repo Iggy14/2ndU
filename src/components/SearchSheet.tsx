@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { CATEGORIES } from "@/lib/types";
 
 // Search button in the nav. Opens a top panel with the search box and category chips;
-// picking a category or submitting a search goes to the home grid (/?q=&cat=#browse).
+// picking a category or submitting a search goes to the browse page (/browse?q=&cat=).
 export default function SearchSheet({ className }: { className?: string }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -21,7 +21,7 @@ export default function SearchSheet({ className }: { className?: string }) {
     if (nextCat) sp.set("cat", nextCat);
     const qs = sp.toString();
     setOpen(false);
-    router.push(`/${qs ? `?${qs}` : ""}#browse`);
+    router.push(`/browse${qs ? `?${qs}` : ""}`);
   };
 
   const chip = (active: boolean) =>

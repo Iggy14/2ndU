@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const arrow =
-  "absolute top-1/2 flex size-10 -translate-y-1/2 items-center justify-center bg-white text-[#0f3d2e] shadow hover:bg-[#0f3d2e] hover:text-white";
+  "absolute top-1/2 flex size-10 -translate-y-1/2 items-center justify-center bg-white text-[#0f3d2e] shadow transition-colors hover:bg-[#0f3d2e] hover:text-white";
 
 export default function ListingGallery({ images, title, sold }: { images: string[]; title: string; sold: boolean }) {
   const [photo, setPhoto] = useState(0);
@@ -15,19 +15,20 @@ export default function ListingGallery({ images, title, sold }: { images: string
   return (
     <div className="relative min-h-[24rem] overflow-hidden bg-slate-100 md:min-h-[32rem]">
       <Image
+        key={photo}
         src={images[photo]}
         alt={title}
         fill
         priority
         sizes="(min-width: 768px) 50vw, 100vw"
-        className={`object-cover ${sold ? "opacity-60" : ""}`}
+        className={`animate-in fade-in duration-300 object-cover ${sold ? "opacity-60" : ""}`}
       />
       {many && (
         <>
           <div className="absolute inset-x-0 top-4 flex justify-center gap-2">
             {images.map((src, i) => (
               <button key={src} onClick={() => setPhoto(i)} aria-label={`Photo ${i + 1}`}
-                className={`h-1 w-8 shadow ${i === photo ? "bg-[#0f3d2e]" : "bg-white/70 hover:bg-white"}`} />
+                className={`h-1 w-8 shadow transition-colors ${i === photo ? "bg-[#0f3d2e]" : "bg-white/70 hover:bg-white"}`} />
             ))}
           </div>
           <button onClick={() => go(-1)} aria-label="Previous photo" className={`${arrow} left-3`}><ChevronLeft className="size-5" /></button>

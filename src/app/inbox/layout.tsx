@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient, getUserId } from "@/lib/supabase/server";
+import { ListSkeleton } from "@/components/skeleton/Skeletons";
 import ConversationList, { type ConversationRow } from "./ConversationList";
 
 type Row = {
@@ -11,7 +13,21 @@ type Row = {
 };
 
 // Two-pane chat layout: conversation list on the left, the open chat (or empty state) on the right.
-export default async function InboxLayout({ children }: LayoutProps<"/inbox">) {
+export default function InboxLayout({ children }: LayoutProps<"/inbox">) {
+  return (
+    <Suspense
+      fallback={
+        <div className="pt-8" role="status" aria-label="Loading">
+          <ListSkeleton />
+        </div>
+      }
+    >
+      <InboxShell>{children}</InboxShell>
+    </Suspense>
+  );
+}
+
+async function InboxShell({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const userId = await getUserId(supabase);
   if (!userId) redirect("/login?next=/inbox");

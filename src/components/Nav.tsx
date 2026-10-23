@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
 import SignOutButton from "./SignOutButton";
 import ChatsLink from "./ChatsLink";
+import HomeLink from "./HomeLink";
 import MobileNav from "./MobileNav";
 import SearchSheet from "./SearchSheet";
 
@@ -33,7 +34,8 @@ export default async function Nav() {
 
   const links = (cls: string, showChats = true) => (
     <>
-      <Link href="/" className={cls}>Browse</Link>
+      <HomeLink className={cls}>Home</HomeLink>
+      <Link href="/browse" className={cls}>Browse</Link>
       {profile?.is_seller && !profile.banned && (
         <>
           <Link href="/sell/new" className={cls}>Post item</Link>
@@ -57,9 +59,9 @@ export default async function Nav() {
         </p>
       )}
       <nav className="relative mx-auto flex h-24 w-full max-w-7xl items-center justify-between gap-x-3 px-4 md:h-20 md:gap-x-6 sm:px-10">
-        <Link href="/" aria-label="2ndU home" className="shrink-0">
+        <HomeLink aria-label="2ndU home" className="shrink-0">
           <Image src="/logo-white.png" alt="2ndU" width={600} height={258} priority className="h-10 w-auto md:h-11" />
-        </Link>
+        </HomeLink>
         <div className="hidden items-center gap-10 md:absolute md:left-1/2 md:flex md:-translate-x-1/2">{links(link)}</div>
         <div className="flex items-center gap-2 md:gap-3">
           {user && (

@@ -51,3 +51,4 @@ Verified so far: seller verification, chat both directions (with polling backup)
 ## Performance
 - [ ] `become-seller/page.tsx` still calls `supabase.auth.getUser()` on purpose: it needs `email_confirmed_at` and `new_email`, which are not in the JWT claims. Leave unless those checks move server-side.
 - [ ] Source images in `public/` are large (`classic-wardrobe.png` 2.1 MB, `auth-bg.jpg` 2.1 MB, `parrot.png` 1 MB); `next/image` serves optimized copies, but compressing the originals speeds the first (uncached) hit.
+- [ ] Not cached yet: `/browse` with no filters (page 1, newest). Every visit runs the listings query. To do: add a `"use cache"` + `cacheLife("minutes")` function in `src/lib/homeData.ts` that runs `homeListingsQuery(createPublicClient(), NO_FILTERS)`, and use it in `Results` in `src/app/browse/page.tsx` when no filter or page is set. Skipped because the live grid already refreshes itself every few seconds, so the gain is small until traffic grows.

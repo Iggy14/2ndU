@@ -78,7 +78,7 @@ export default function ConversationList({ rows, isSeller }: { rows: Conversatio
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`border-b-2 pb-1 text-[11px] font-bold uppercase tracking-widest ${tab === t ? "border-[#0f3d2e] text-[#0f3d2e]" : "border-transparent text-slate-500 hover:text-[#0f3d2e]"}`}
+            className={`border-b-2 pb-1 transition-colors text-[11px] font-bold uppercase tracking-widest ${tab === t ? "border-[#0f3d2e] text-[#0f3d2e]" : "border-transparent text-slate-500 hover:text-[#0f3d2e]"}`}
           >
             {t === "all" ? "All messages" : t}
           </button>
@@ -97,7 +97,7 @@ export default function ConversationList({ rows, isSeller }: { rows: Conversatio
             <li key={c.id}>
               <Link
                 href={`/inbox/${c.id}`}
-                className={`flex items-center gap-3 bg-[#0f3d2e] px-3 py-3 text-white ${active ? "ring-2 ring-inset ring-white/60" : "hover:bg-[#0f3d2e]/90"}`}
+                className={`flex items-center gap-3 bg-[#0f3d2e] px-3 py-3 text-white transition-colors ${active ? "ring-2 ring-inset ring-white/60" : "hover:bg-[#0f3d2e]/90"}`}
               >
                 {c.image ? <Image src={c.image} alt="" width={88} height={88} className="size-11 shrink-0 object-cover" /> : <div className="size-11 shrink-0 bg-white/20" />}
                 <div className="min-w-0 flex-1">

@@ -112,9 +112,11 @@ export default function ListingDetail({
 
   return (
     <div className="grid gap-8 pt-8 md:grid-cols-[1.2fr_1fr] md:gap-12">
-      <ListingGallery images={listing.images} title={listing.title} sold={sold} />
+      <div className="animate-in fade-in duration-500 fill-mode-both">
+        <ListingGallery images={listing.images} title={listing.title} sold={sold} />
+      </div>
 
-      <div className="space-y-5">
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both delay-100 space-y-5">
         {sold && (
           <div className="bg-[#0f3d2e] px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-white">
             This item has been sold.

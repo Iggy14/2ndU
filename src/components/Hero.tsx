@@ -26,7 +26,7 @@ export default function Hero() {
         </div>
 
         <div className="flex items-center justify-center gap-3 animate-in fade-in slide-in-from-bottom-4 fill-mode-both delay-700 duration-700">
-          <Link href="#browse" className="bg-white px-8 py-3 text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e] transition duration-200 hover:-translate-y-0.5 hover:bg-green-100 active:translate-y-0">
+          <Link href="/browse"className="bg-white px-8 py-3 text-[11px] font-bold uppercase tracking-widest text-[#0f3d2e] transition duration-200 hover:-translate-y-0.5 hover:bg-green-100 active:translate-y-0">
             Shop now
           </Link>
           <Link href="/sell/new" className="border border-white px-8 py-3 text-[11px] font-bold uppercase tracking-widest text-white transition duration-200 hover:-translate-y-0.5 hover:bg-white/10 active:translate-y-0">

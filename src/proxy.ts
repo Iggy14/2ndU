@@ -31,6 +31,14 @@ export async function proxy(request: NextRequest) {
   const user = data?.claims ?? null;
 
   const path = request.nextUrl.pathname;
+
+  // Browsing moved to /browse; keep old /?q=&cat=&page=&sort=&min=&max= links working.
+  if (path === "/" && ["q", "cat", "page", "sort", "min", "max"].some((k) => request.nextUrl.searchParams.has(k))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/browse";
+    return NextResponse.redirect(url);
+  }
+
   if (!user && LOGIN_REQUIRED.some((p) => path.startsWith(p))) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

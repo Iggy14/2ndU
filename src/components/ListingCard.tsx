@@ -8,10 +8,13 @@ export default function ListingCard({
   listing,
   viewerId,
   favorited = false,
+  showNegotiating = true,
 }: {
   listing: Listing;
   viewerId?: string | null;
   favorited?: boolean;
+  // The badge depends on the current time; turn it off where the card is prerendered.
+  showNegotiating?: boolean;
 }) {
   const sold = listing.status === "sold";
   return (
@@ -30,7 +33,7 @@ export default function ListingCard({
             Sold
           </span>
         )}
-        {isNegotiating(listing, viewerId) && (
+        {showNegotiating && isNegotiating(listing, viewerId) && (
           <span className="absolute bottom-0 left-0 bg-amber-500 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white">
             Being negotiated
           </span>

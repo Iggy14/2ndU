@@ -1,50 +1,45 @@
+import { Suspense } from "react";
+import { connection } from "next/server";
 import { createClient, getUserId } from "@/lib/supabase/server";
 import Hero from "@/components/Hero";
-import ListingGrid from "@/components/ListingGrid";
-import CategoryFilter from "@/components/CategoryFilter";
-import type { Listing } from "@/lib/types";
-import Pagination from "@/components/Pagination";
-import Reveal from "@/components/Reveal";
-import { homeListingsQuery, PAGE_SIZE } from "@/lib/listingsQuery";
+import CategoryIndex from "@/components/home/CategoryIndex";
+import JustListed from "@/components/home/JustListed";
+import HowItWorks from "@/components/home/HowItWorks";
+import SellBand from "@/components/home/SellBand";
+import { getHomeData } from "@/lib/homeData";
 
-export default async function Home({ searchParams }: PageProps<"/">) {
-  const sp = await searchParams;
-  const q = typeof sp.q === "string" ? sp.q.trim() : "";
-  const cat = typeof sp.cat === "string" ? sp.cat : "";
-  const page = Math.max(1, Math.floor(Number(typeof sp.page === "string" ? sp.page : 1)) || 1);
-
-  const supabase = await createClient();
+// Only the viewer-specific bits (hearts, "being negotiated") depend on cookies; the listings are cached.
+async function PersonalJustListed() {
+  await connection(); // request-time only: the "being negotiated" badge reads the current time
+  const [{ listings }, supabase] = await Promise.all([getHomeData(), createClient()]);
   const userId = await getUserId(supabase);
-
-  const { data, count } = await homeListingsQuery(supabase, { q, cat, page });
   const { data: favs } = userId
     ? await supabase.from("favorites").select("listing_id").eq("user_id", userId)
     : { data: [] };
-  const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
+  return <JustListed listings={listings} viewerId={userId} favoriteIds={(favs ?? []).map((f) => f.listing_id)} />;
+}
 
+async function AnonymousJustListed() {
+  const { listings } = await getHomeData();
+  return <JustListed listings={listings} viewerId={null} favoriteIds={[]} showNegotiating={false} />;
+}
+
+async function Categories() {
+  const { counts } = await getHomeData();
+  return <CategoryIndex counts={counts} />;
+}
+
+export default function Home() {
   return (
     <div>
       <Hero />
-      <div id="browse" className="scroll-mt-20 space-y-5 pt-8">
-        <Reveal>
-          <h2 className="text-center text-2xl font-black uppercase tracking-widest text-[#0f3d2e] sm:text-3xl">Fresh Finds</h2>
-        </Reveal>
-        <Reveal delay={100}>
-          <CategoryFilter q={q} cat={cat} />
-        </Reveal>
-        <ListingGrid
-          key={`${q}|${cat}|${page}`}
-          q={q}
-          cat={cat}
-          page={page}
-          initial={(data ?? []) as Listing[]}
-          viewerId={userId}
-          favoriteIds={(favs ?? []).map((f) => f.listing_id)}
-        />
-        <Reveal>
-          <Pagination q={q} cat={cat} page={page} totalPages={totalPages} />
-        </Reveal>
-      </div>
+      <Categories />
+      {/* the fallback is the same cached grid without hearts, so the page never shows an empty gap */}
+      <Suspense fallback={<AnonymousJustListed />}>
+        <PersonalJustListed />
+      </Suspense>
+      <HowItWorks />
+      <SellBand />
     </div>
   );
 }
