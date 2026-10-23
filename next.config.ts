@@ -6,6 +6,9 @@ const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
   : null;
 
 const nextConfig: NextConfig = {
+  experimental: {
+    agentUpgrade: "security",
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: supabaseHost
